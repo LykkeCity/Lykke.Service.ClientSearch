@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <AssemblyName>Lykke.Service.ClientSearch.AzureRepositories</AssemblyName>
+    <RootNamespace>Lykke.Service.ClientSearch.AzureRepositories</RootNamespace>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Lykke.AzureStorage" Version="1.2.24" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lykke.Service.ClientSearch.Core\Lykke.Service.ClientSearch.Core.csproj" />
+  </ItemGroup>
+
+</Project>
