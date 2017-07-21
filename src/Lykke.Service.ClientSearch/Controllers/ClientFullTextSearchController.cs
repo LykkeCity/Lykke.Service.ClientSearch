@@ -12,6 +12,8 @@ namespace Lykke.Service.ClientSearch.Controllers
     /// Controller for personal data
     /// </summary>
     //[Authorize]
+
+    [AllowAnonymous]
     [Route("api/[controller]")]
     public class ClientFullTextSearchController : Controller
     {
