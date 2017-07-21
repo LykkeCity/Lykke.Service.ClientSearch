@@ -103,14 +103,10 @@ namespace Lykke.Service.ClientSearch
             ApplicationContainer = builder.Build();
 
 
-
-
-
-
             return new AutofacServiceProvider(ApplicationContainer);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime, AppSettings settings)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime, AppSettings settings, ILog log)
         {
             if (env.IsDevelopment())
             {
@@ -129,31 +125,28 @@ namespace Lykke.Service.ClientSearch
                 ApplicationContainer.Dispose();
             });
 
-            ILog log = new LogToConsole();
             Task task = Task.Factory.StartNew(() => PersonalDataLoader.LoadAllAsync(settings.PersonalDataApi.PersonalDataConnection.ConnectionString, "PersonalData", log));
         }
 
         private static ILog CreateLogWithSlack(IServiceCollection services, AppSettings settings)
         {
-            //LykkeLogToAzureStorage logToAzureStorage = null;
+            LykkeLogToAzureStorage logToAzureStorage = null;
 
             var logToConsole = new LogToConsole();
             var logAggregate = new LogAggregate();
 
             logAggregate.AddLogger(logToConsole);
 
-            //var dbLogConnectionString = settings.ClientSearchService.Db.LogsConnString;
+            var dbLogConnectionString = settings.ClientSearchServiceSettings.LogConnection.ConnectionString;
 
             // Creating azure storage logger, which logs own messages to concole log
-            /*
             if (!string.IsNullOrEmpty(dbLogConnectionString) && !(dbLogConnectionString.StartsWith("${") && dbLogConnectionString.EndsWith("}")))
             {
                 logToAzureStorage = new LykkeLogToAzureStorage("Lykke.Service.ClientSearch", new AzureTableStorage<LogEntity>(
-                    dbLogConnectionString, "ClientSearchLog", logToConsole));
+                    dbLogConnectionString, settings.ClientSearchServiceSettings.LogConnection.TableName, logToConsole));
 
                 logAggregate.AddLogger(logToAzureStorage);
             }
-            */
 
             // Creating aggregate log, which logs to console and to azure storage, if last one specified
             var log = logAggregate.CreateLogger();
