@@ -74,21 +74,29 @@ namespace Lykke.Service.ClientSearch
             });
 
             var builder = new ContainerBuilder();
+            /*
             var appSettings = Environment.IsDevelopment()
                 ? Configuration.Get<AppSettings>()
                 : HttpSettingsLoader.Load<AppSettings>(Configuration.GetValue<string>("SettingsUrl"));
+                */
+            //string settingsUrl = Configuration.GetValue<string>("SettingsUrl");
+            var appSettings = HttpSettingsLoader.Load<AppSettings>();
+
             var log = CreateLogWithSlack(services, appSettings);
 
-            builder.RegisterModule(new ServiceModule(appSettings.ClientSearchService, log));
+            builder.RegisterModule(new ServiceModule(log));
 
             builder.RegisterInstance<AppSettings>(appSettings).SingleInstance();
 
             //builder.RegisterType<ApiKeyValidator>().As<IApiKeyValidator>();
 
             //storages
+            /*
             builder.RegisterInstance<INoSQLTableStorage<PersonalDataEntity>>(
-                new AzureTableStorage<PersonalDataEntity>(appSettings.ClientSearchService.Db.PersonalDataConnString,
+                new AzureTableStorage<PersonalDataEntity>(appSettings.PersonalDataConnection.ConnectionString,
                     "PersonalData", log));
+                    
+             */
 
 
             builder.Populate(services);
@@ -122,21 +130,22 @@ namespace Lykke.Service.ClientSearch
             });
 
             ILog log = new LogToConsole();
-            Task task = Task.Factory.StartNew(() => PersonalDataLoader.LoadAllAsync(settings.ClientSearchService.Db.PersonalDataConnString, "PersonalData", log));
+            Task task = Task.Factory.StartNew(() => PersonalDataLoader.LoadAllAsync(settings.PersonalDataApi.PersonalDataConnection.ConnectionString, "PersonalData", log));
         }
 
         private static ILog CreateLogWithSlack(IServiceCollection services, AppSettings settings)
         {
-            LykkeLogToAzureStorage logToAzureStorage = null;
+            //LykkeLogToAzureStorage logToAzureStorage = null;
 
             var logToConsole = new LogToConsole();
             var logAggregate = new LogAggregate();
 
             logAggregate.AddLogger(logToConsole);
 
-            var dbLogConnectionString = settings.ClientSearchService.Db.LogsConnString;
+            //var dbLogConnectionString = settings.ClientSearchService.Db.LogsConnString;
 
             // Creating azure storage logger, which logs own messages to concole log
+            /*
             if (!string.IsNullOrEmpty(dbLogConnectionString) && !(dbLogConnectionString.StartsWith("${") && dbLogConnectionString.EndsWith("}")))
             {
                 logToAzureStorage = new LykkeLogToAzureStorage("Lykke.Service.ClientSearch", new AzureTableStorage<LogEntity>(
@@ -144,11 +153,13 @@ namespace Lykke.Service.ClientSearch
 
                 logAggregate.AddLogger(logToAzureStorage);
             }
+            */
 
             // Creating aggregate log, which logs to console and to azure storage, if last one specified
             var log = logAggregate.CreateLogger();
 
             // Creating slack notification service, which logs own azure queue processing messages to aggregate log
+            /*
             var slackService = services.UseSlackNotificationsSenderViaAzureQueue(new AzureQueueIntegration.AzureQueueSettings
             {
                 ConnectionString = settings.SlackNotifications.AzureQueue.ConnectionString,
@@ -157,6 +168,7 @@ namespace Lykke.Service.ClientSearch
 
             // Finally, setting slack notification for azure storage log, which will forward necessary message to slack service
             logToAzureStorage?.SetSlackNotification(slackService);
+            */
 
             return log;
         }

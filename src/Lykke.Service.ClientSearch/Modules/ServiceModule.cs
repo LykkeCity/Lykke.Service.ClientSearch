@@ -8,14 +8,14 @@ namespace Lykke.Service.ClientSearch.Modules
 {
     public class ServiceModule : Module
     {
-        private readonly ClientSearchSettings _settings;
+        //private readonly ClientSearchSettings _settings;
         private readonly ILog _log;
         // NOTE: you can remove it if you don't need to use IServiceCollection extensions to register service specific dependencies
         private readonly IServiceCollection _services;
 
-        public ServiceModule(ClientSearchSettings settings, ILog log)
+        public ServiceModule(/*ClientSearchSettings settings, */ILog log)
         {
-            _settings = settings;
+            //_settings = settings;
             _log = log;
 
             _services = new ServiceCollection();
@@ -23,8 +23,10 @@ namespace Lykke.Service.ClientSearch.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
+            /*
             builder.RegisterInstance(_settings)
                 .SingleInstance();
+             */
 
             builder.RegisterInstance(_log)
                 .As<ILog>()

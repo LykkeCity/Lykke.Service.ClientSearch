@@ -16,7 +16,8 @@ namespace Lykke.Service.ClientSearch
 
         public bool Validate(string apiKey)
         {
-            return apiKey == _settings.ClientSearchService.ApiKey;
+            //return apiKey == _settings.ClientSearchService.ApiKey;
+            return false;
         }
     }
 }

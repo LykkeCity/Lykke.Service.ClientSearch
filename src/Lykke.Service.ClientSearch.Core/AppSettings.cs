@@ -4,10 +4,16 @@ namespace Lykke.Service.ClientSearch.Core
 {
     public class AppSettings
     {
-        public ClientSearchSettings ClientSearchService { get; set; }
-        public SlackNotificationsSettings SlackNotifications { get; set; }
+        //public AzureTableSettings LogConnection { get; set; }
+
+        public PersonalDataApiSettings PersonalDataApi{ get; set; }
+
+        //public string ApiKey { get; set; }
+
     }
 
+
+    /*
     public class ClientSearchSettings
     {
         public DbSettings Db { get; set; }
@@ -20,6 +26,7 @@ namespace Lykke.Service.ClientSearch.Core
         public string LogsConnString { get; set; }
         public string PersonalDataConnString { get; set; }
     }
+    */
 
     public class SlackNotificationsSettings
     {
@@ -43,5 +50,12 @@ namespace Lykke.Service.ClientSearch.Core
         [Required(AllowEmptyStrings = false)]
         public string TableName { get; set; }
     }
+
+    public class PersonalDataApiSettings
+    {
+        public AzureTableSettings PersonalDataConnection { get; set; }
+    }
+
+
 
 }

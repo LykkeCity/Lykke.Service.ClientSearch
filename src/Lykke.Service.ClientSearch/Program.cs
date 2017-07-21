@@ -27,7 +27,6 @@ namespace Lykke.Service.ClientSearch
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>()
                 .UseUrls("http://*:5048")
-                //.UseUrls(Startup.settings.ClientSearchService.ServiceUri)
                 .UseApplicationInsights()
                 .Build();
 
