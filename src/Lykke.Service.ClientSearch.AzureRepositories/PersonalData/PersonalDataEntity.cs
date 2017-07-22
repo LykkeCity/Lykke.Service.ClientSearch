@@ -1,4 +1,5 @@
 using Microsoft.WindowsAzure.Storage.Table;
+using System;
 
 namespace Lykke.Service.ClientSearch.AzureRepositories.PersonalData
 {

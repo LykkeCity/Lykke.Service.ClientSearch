@@ -79,6 +79,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                 }
                 sb.Append($"Address:({queryAddr})");
             }
+
             if (sb.Length == 0)
             {
                 return new List<ClientFulltextSearchResultBackOfficeItem>();
@@ -90,6 +91,11 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
             {
                 QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "Name", rAnalyzer);
                 Query q = parser.Parse(queryStr);
+
+                /*
+                Term term = new Term("Name", queryStr);
+                Query q = new FuzzyQuery(term);
+                */
 
                 var collector = TopScoreDocCollector.Create(100, true);
                 searcher.Search(q, collector);
