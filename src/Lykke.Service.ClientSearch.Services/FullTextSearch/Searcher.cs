@@ -64,8 +64,15 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                 {
                     queryName = queryName.Replace(chToReplace, ' ');
                 }
-                sb.Append($"Name:({queryName}) ");
+                string[] words = queryName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                sb.Append("Name:(");
+                foreach(string word in words)
+                {
+                    sb.Append(word).Append("~0.8 ");
+                }
+                sb.Append(") ");
             }
+            /*
             if (!String.IsNullOrWhiteSpace(addr))
             {
                 string queryAddr = addr.ToLower();
@@ -79,6 +86,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                 }
                 sb.Append($"Address:({queryAddr})");
             }
+            */
 
             if (sb.Length == 0)
             {
@@ -97,7 +105,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                 Query q = new FuzzyQuery(term);
                 */
 
-                var collector = TopScoreDocCollector.Create(100, true);
+                var collector = TopScoreDocCollector.Create(10, true);
                 searcher.Search(q, collector);
 
                 List<ClientFulltextSearchResultBackOfficeItem> matchingResults = new List<ClientFulltextSearchResultBackOfficeItem>();
