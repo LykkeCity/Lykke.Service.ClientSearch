@@ -64,7 +64,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                             }
 
                             var doc = new Document();
-                            doc.Add(new Field("Id", d.Id, idFieldType));
+                            doc.Add(new Field("ClientId", d.Id, idFieldType));
                             if (d.FullName != null)
                             {
                                 doc.Add(new Field("Name", nameToIndex, searchFieldType));
@@ -73,7 +73,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                             {
                                 doc.Add(new Field("Address", addressToIndex, searchFieldType));
                             }
-                            writer.UpdateDocument(new Term("Id", d.Id), doc);
+                            writer.UpdateDocument(new Term("ClientId", d.Id), doc);
                         }
                         catch (Exception ex)
                         {

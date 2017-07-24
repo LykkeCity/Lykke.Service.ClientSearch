@@ -27,7 +27,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                 ClientFulltextSearchResultItem resultItem = new ClientFulltextSearchResultItem();
                 resultItem.Name = requestItem.Name;
                 resultItem.Address = requestItem.Address;
-                resultItem.BackOfficeResultItems = Search(requestItem.Name, requestItem.Address, top);
+                resultItem.BackOfficeResultItems = Search(requestItem.AssetId, requestItem.Name, requestItem.Address, top);
                 result[requestItem.OrderNumber] = resultItem;
             }
 
@@ -47,7 +47,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
             return result;
         }
 
-        public static IList<ClientFulltextSearchResultBackOfficeItem> Search(string name, string addr, int top)
+        public static IList<ClientFulltextSearchResultBackOfficeItem> Search(string assetId, string name, string addr, int top)
         {
             Lucene.Net.Store.Directory dir = Indexer.IndexDirectory;
 
@@ -110,6 +110,8 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
 
                     ClientFulltextSearchResultBackOfficeItem resultItem = new ClientFulltextSearchResultBackOfficeItem();
 
+                    resultItem.AssetId = assetId;
+                    resultItem.ClientId = doc.GetField("ClientId").GetStringValue();
                     resultItem.BackOfficeName = doc.GetField("Name").GetStringValue();
                     resultItem.BackOfficeAddress = doc.GetField("Address")?.GetStringValue();
 
