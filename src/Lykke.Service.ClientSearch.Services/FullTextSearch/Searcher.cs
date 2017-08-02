@@ -60,7 +60,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
             IndexReader reader = DirectoryReader.Open(dir);
             IndexSearcher searcher = new IndexSearcher(reader);
 
-            char[] reservedChars = new char[] { '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/' };
+            char[] reservedChars = new char[] { '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/', ',' };
 
             StringBuilder sb = new StringBuilder();
             if (!String.IsNullOrWhiteSpace(name))
@@ -90,6 +90,8 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                 }
                 sb.Append(") ");
             }
+
+
             /*
             if (!String.IsNullOrWhiteSpace(addr))
             {
@@ -178,12 +180,10 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                     explains.Add(expl.ToHtml());
                 }
 
-                /*
                 lock(thisLock)
                 {
                     File.AppendAllLines("D:/Projects.Lykke/tmp/1234.htm", explains);
                 }
-                */
 
                 return matchingResults;
             }

@@ -79,12 +79,10 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
 
                             string addressToIndex = d.Address ?? "";
 
-                            /*
                             if (String.IsNullOrWhiteSpace(nameToIndex) && String.IsNullOrWhiteSpace(addressToIndex)) // nothing to index
                             {
                                 continue;
                             }
-                            */
 
                             string id = d.Id;
 
