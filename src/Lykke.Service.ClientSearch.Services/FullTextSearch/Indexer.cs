@@ -1,6 +1,8 @@
 ﻿using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
+using Lucene.Net.QueryParsers.Classic;
+using Lucene.Net.Search;
 using Lucene.Net.Search.Similarities;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
@@ -30,10 +32,10 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
 
                 FieldType storeFieldType = new FieldType();
                 storeFieldType.IndexOptions = IndexOptions.DOCS_ONLY;
-                storeFieldType.IsIndexed = false;
+                storeFieldType.IsIndexed = true;
                 storeFieldType.IsStored = true;
                 storeFieldType.IsTokenized = false;
-                storeFieldType.OmitNorms = false;
+                storeFieldType.OmitNorms = true;
                 storeFieldType.Freeze();
 
                 FieldType searchFieldType = new FieldType();
@@ -57,7 +59,6 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                 }
 
 
-                
                 using (var writer = new IndexWriter(IndexDirectory, config))
                 {
 
@@ -85,13 +86,14 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                             }
                             */
 
+                            string id = d.Id;
+
                             var doc = new Document();
-                            doc.Add(new Field("ClientId", d.Id, storeFieldType));
+                            doc.Add(new Field("ClientId", id, storeFieldType));
                             nameToIndex = nameToIndex.Trim();
                             if (nameToIndex.Length > 0)
                             {
                                 doc.Add(new Field("Name", nameToIndex, searchFieldType));
-                                //doc.Add(new Field("IndexedName", valueToIndex, storeFieldType));
                             }
 
                             if (d.Address != null)
@@ -99,9 +101,9 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                                 doc.Add(new Field("Address", addressToIndex, searchFieldType));
                             }
 
-                            writer.DeleteDocuments(new Term("ClientId", d.Id));
 
-                            writer.AddDocument(doc);
+                            writer.UpdateDocument(new Term("ClientId", id), doc, wAnalyzer);
+
 
                             writer.Commit();
 
@@ -126,7 +128,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                     }
 
 
-                    //File.AppendAllLines("D:/Projects.Lykke/tmp/iiiii.htm", ccc);
+                    File.AppendAllLines("D:/Projects.Lykke/tmp/iiiii.htm", ccc);
 
                     //writer.Commit();
                 }
