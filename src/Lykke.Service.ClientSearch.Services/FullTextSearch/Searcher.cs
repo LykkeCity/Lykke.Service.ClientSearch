@@ -3,11 +3,14 @@ using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.QueryParsers.Classic;
 using Lucene.Net.Search;
-using Lucene.Net.Store;
+using Lucene.Net.Search.Similarities;
 using Lucene.Net.Util;
 using Lykke.Service.ClientSearch.Core.FullTextSearch;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,6 +18,8 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
 {
     public class Searcher
     {
+        private static Object thisLock = new Object();
+
         public static IEnumerable<ClientFulltextSearchResultItem> Search(IList<ClientFulltextSearchRequestItem> requestItems, int top = 3)
         {
             ClientFulltextSearchResultItem[] result = new ClientFulltextSearchResultItem[requestItems.Count];
@@ -23,26 +28,27 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
             foreach (ClientFulltextSearchRequestItem requestItem in requestItems)
             {
                 requestItem.OrderNumber = n++;
+            }
 
+            /*
+            foreach (ClientFulltextSearchRequestItem requestItem in requestItems)
+            {
                 ClientFulltextSearchResultItem resultItem = new ClientFulltextSearchResultItem();
                 resultItem.Name = requestItem.Name;
                 resultItem.Address = requestItem.Address;
                 resultItem.BackOfficeResultItems = Search(requestItem.AssetId, requestItem.Name, requestItem.Address, top);
                 result[requestItem.OrderNumber] = resultItem;
             }
+            */
 
-
-            /*
             Parallel.ForEach<ClientFulltextSearchRequestItem>(requestItems, _ => 
             {
                 ClientFulltextSearchResultItem resultItem = new ClientFulltextSearchResultItem();
                 resultItem.Name = _.Name;
                 resultItem.Address = _.Address;
-                resultItem.BackOfficeResultItems = Search(_.Name, _.Address, top);
+                resultItem.BackOfficeResultItems = Search(_.AssetId, _.Name, _.Address, top);
                 result[_.OrderNumber] = resultItem;
             });
-            */
-
 
             return result;
         }
@@ -60,15 +66,27 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
             if (!String.IsNullOrWhiteSpace(name))
             {
                 string queryName = name.ToLower();
-                foreach(char chToReplace in reservedChars)
+                foreach (char chToReplace in reservedChars)
                 {
                     queryName = queryName.Replace(chToReplace, ' ');
                 }
                 string[] words = queryName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] uniqueWords = words.Distinct().ToArray();
                 sb.Append("Name:(");
-                foreach(string word in words)
+                foreach (string word in uniqueWords)
                 {
-                    sb.Append(word).Append("~0.8 ");
+                    if (word.Length > 4)
+                    {
+                        sb.Append(word).Append("~0.79 ");
+                    }
+                    else if (word.Length > 3)
+                    {
+                        sb.Append(word).Append("~0.74 ");
+                    }
+                    else
+                    {
+                        sb.Append(word);
+                    }
                 }
                 sb.Append(") ");
             }
@@ -100,38 +118,79 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                 QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "Name", rAnalyzer);
                 Query q = parser.Parse(queryStr);
 
+                //var q = new FuzzyQuery(new Term("Name", name));
+
                 /*
-                Term term = new Term("Name", queryStr);
-                Query q = new FuzzyQuery(term);
+                if (!String.IsNullOrWhiteSpace(name))
+                {
+                    string queryName = name.ToLower();
+                    string[] words = queryName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string word in words)
+                    {
+                        q.Add(new Term("Name", word));
+                    }
+                }
                 */
 
                 var collector = TopScoreDocCollector.Create(10, true);
                 searcher.Search(q, collector);
+                searcher.Similarity = new DefaultSimilarity();
 
                 List<ClientFulltextSearchResultBackOfficeItem> matchingResults = new List<ClientFulltextSearchResultBackOfficeItem>();
-                //List<string> explains = new List<string>();
+                List<string> explains = new List<string>();
 
                 TopDocs topDocs = collector.GetTopDocs(0, collector.TotalHits);
                 foreach (ScoreDoc scoreDoc in topDocs.ScoreDocs)
                 {
                     Document doc = searcher.Doc(scoreDoc.Doc);
 
-                    ClientFulltextSearchResultBackOfficeItem resultItem = new ClientFulltextSearchResultBackOfficeItem();
+                    Explanation expl = searcher.Explain(q, scoreDoc.Doc);
+                    Explanation[] explDetails = expl.GetDetails();
 
-                    resultItem.AssetId = assetId;
-                    resultItem.ClientId = doc.GetField("ClientId").GetStringValue();
-                    resultItem.BackOfficeName = doc.GetField("Name").GetStringValue();
-                    resultItem.BackOfficeAddress = doc.GetField("Address")?.GetStringValue();
+                    float coord = 1f;
+                    if (explDetails[explDetails.Length - 1].ToString().Contains("coord"))
+                    {
+                        string s = explDetails[explDetails.Length - 1].ToString();
+                        string num = s.Substring(0, s.IndexOf(' ')).Trim().Replace(',', '.');
+                        float.TryParse(num, NumberStyles.Float, CultureInfo.InvariantCulture, out coord);
+                    }
 
-                    matchingResults.Add(resultItem);
+                    if (coord > 0.51)
+                    {
+                        ClientFulltextSearchResultBackOfficeItem resultItem = new ClientFulltextSearchResultBackOfficeItem();
 
-                    //explains.Add(searcher.Explain(q, scoreDoc.Doc).ToHtml());
+                        resultItem.AssetId = assetId;
+                        resultItem.ClientId = doc.GetField("ClientId").GetStringValue();
+                        resultItem.BackOfficeName = doc.GetField("Name").GetStringValue();
+                        resultItem.BackOfficeAddress = doc.GetField("Address")?.GetStringValue();
+
+                        //resultItem.Score = coord.ToString();
+
+                        //string indexedName = doc.GetField("IndexedName").GetStringValue();
+                        
+
+                        //resultItem.Score = explDetails[explDetails.Length - 1].ToString();
+
+                        matchingResults.Add(resultItem);
+                    }
+
+
+                    explains.Add(expl.ToHtml());
                 }
+
+                /*
+                lock(thisLock)
+                {
+                    File.AppendAllLines("D:/Projects.Lykke/tmp/1234.htm", explains);
+                }
+                */
+
                 return matchingResults;
             }
 
         }
 
     }
+
 }
 

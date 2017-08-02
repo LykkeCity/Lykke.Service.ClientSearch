@@ -10,5 +10,7 @@ namespace Lykke.Service.ClientSearch.Core.FullTextSearch
         public String AssetId { get; set; }
         public String BackOfficeName { get; set; }
         public String BackOfficeAddress { get; set; }
+
+        public String Score { get; set; }
     }
 }

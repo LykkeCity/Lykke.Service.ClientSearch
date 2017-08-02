@@ -1,12 +1,14 @@
 ﻿using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
+using Lucene.Net.Search.Similarities;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
 using Lykke.Service.ClientSearch.AzureRepositories.PersonalData;
+using Lykke.Service.ClientSearch.Services.FullTextSearch;
 using System;
 using System.Collections.Generic;
-
+using System.IO;
 
 namespace Lykke.Service.ClientSearch.FullTextSearch
 {
@@ -22,15 +24,17 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
             {
                 IndexWriterConfig config = new IndexWriterConfig(LuceneVersion.LUCENE_48, wAnalyzer);
                 config.OpenMode = OpenMode.CREATE_OR_APPEND;
+                //config.Similarity = new BM25Similarity();
+                config.Similarity = new DefaultSimilarity();
                 //config.OpenMode = OpenMode.CREATE;
 
-                FieldType idFieldType = new FieldType();
-                idFieldType.IndexOptions = IndexOptions.DOCS_ONLY;
-                idFieldType.IsIndexed = true;
-                idFieldType.IsStored = true;
-                idFieldType.IsTokenized = false;
-                idFieldType.OmitNorms = false;
-                idFieldType.Freeze();
+                FieldType storeFieldType = new FieldType();
+                storeFieldType.IndexOptions = IndexOptions.DOCS_ONLY;
+                storeFieldType.IsIndexed = false;
+                storeFieldType.IsStored = true;
+                storeFieldType.IsTokenized = false;
+                storeFieldType.OmitNorms = false;
+                storeFieldType.Freeze();
 
                 FieldType searchFieldType = new FieldType();
                 searchFieldType.IndexOptions = IndexOptions.DOCS_ONLY;
@@ -38,10 +42,26 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                 searchFieldType.IsStored = true;
                 searchFieldType.IsTokenized = true;
                 searchFieldType.OmitNorms = false;
+                //searchFieldType.StoreTermVectorOffsets = true;
+                //searchFieldType.StoreTermVectorPayloads = true;
+                //searchFieldType.StoreTermVectorPositions = true;
+                //searchFieldType.StoreTermVectors = true;
                 searchFieldType.Freeze();
 
+                try
+                {
+                }
+                catch
+                {
+
+                }
+
+
+                
                 using (var writer = new IndexWriter(IndexDirectory, config))
                 {
+
+                    List<string> ccc = new List<string>();
                     foreach (PersonalDataEntity d in docsToIndex)
                     {
                         try
@@ -58,22 +78,46 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
 
                             string addressToIndex = d.Address ?? "";
 
+                            /*
                             if (String.IsNullOrWhiteSpace(nameToIndex) && String.IsNullOrWhiteSpace(addressToIndex)) // nothing to index
                             {
                                 continue;
                             }
+                            */
 
                             var doc = new Document();
-                            doc.Add(new Field("ClientId", d.Id, idFieldType));
-                            if (d.FullName != null)
+                            doc.Add(new Field("ClientId", d.Id, storeFieldType));
+                            nameToIndex = nameToIndex.Trim();
+                            if (nameToIndex.Length > 0)
                             {
                                 doc.Add(new Field("Name", nameToIndex, searchFieldType));
+                                //doc.Add(new Field("IndexedName", valueToIndex, storeFieldType));
                             }
+
                             if (d.Address != null)
                             {
                                 doc.Add(new Field("Address", addressToIndex, searchFieldType));
                             }
-                            writer.UpdateDocument(new Term("ClientId", d.Id), doc);
+
+                            writer.DeleteDocuments(new Term("ClientId", d.Id));
+
+                            writer.AddDocument(doc);
+
+                            writer.Commit();
+
+
+                            try
+                            {
+                                if (!String.IsNullOrWhiteSpace(nameToIndex))
+                                {
+                                    ccc.Add(nameToIndex);
+                                }
+                            }
+                            catch
+                            {
+
+                            }
+
                         }
                         catch (Exception ex)
                         {
@@ -81,7 +125,10 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                         }
                     }
 
-                    writer.Commit();
+
+                    //File.AppendAllLines("D:/Projects.Lykke/tmp/iiiii.htm", ccc);
+
+                    //writer.Commit();
                 }
             }
         }
