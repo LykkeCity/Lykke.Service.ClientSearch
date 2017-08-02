@@ -180,10 +180,12 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                     explains.Add(expl.ToHtml());
                 }
 
+                /*
                 lock(thisLock)
                 {
                     File.AppendAllLines("D:/Projects.Lykke/tmp/1234.htm", explains);
                 }
+                */
 
                 return matchingResults;
             }
