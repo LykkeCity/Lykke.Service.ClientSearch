@@ -83,9 +83,13 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                     {
                         sb.Append(word).Append("~0.74 ");
                     }
+                    else if (word.Length == 3)
+                    {
+                        sb.Append(word).Append("~0.65 ");
+                    }
                     else
                     {
-                        sb.Append(word);
+                        sb.Append(word).Append(" ");
                     }
                 }
                 sb.Append(") ");

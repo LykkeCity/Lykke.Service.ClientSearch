@@ -126,6 +126,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                     }
 
 
+                    
                     //File.AppendAllLines("D:/Projects.Lykke/tmp/iiiii.htm", ccc);
 
                     //writer.Commit();
