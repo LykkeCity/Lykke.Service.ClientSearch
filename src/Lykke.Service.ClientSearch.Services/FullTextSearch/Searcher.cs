@@ -75,11 +75,15 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                 sb.Append("Name:(");
                 foreach (string word in uniqueWords)
                 {
-                    if (word.Length > 4)
+                    if (word.Length > 5)
                     {
-                        sb.Append(word).Append("~0.79 ");
+                        sb.Append(word).Append("~0.65 ");
                     }
-                    else if (word.Length > 3)
+                    else if (word.Length == 5)
+                    {
+                        sb.Append(word).Append("~0.65 ");
+                    }
+                    else if (word.Length == 4)
                     {
                         sb.Append(word).Append("~0.74 ");
                     }
@@ -154,14 +158,27 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                     Explanation[] explDetails = expl.GetDetails();
 
                     float coord = 1f;
+                    int wordsMatched = 0;
                     if (explDetails[explDetails.Length - 1].ToString().Contains("coord"))
                     {
                         string s = explDetails[explDetails.Length - 1].ToString();
                         string num = s.Substring(0, s.IndexOf(' ')).Trim().Replace(',', '.');
                         float.TryParse(num, NumberStyles.Float, CultureInfo.InvariantCulture, out coord);
+
+                        if (s.IndexOf("/") > 0)
+                        {
+                            string wordsMatchedStr = s.Substring(s.IndexOf("(") + 1, s.IndexOf("/") - 1 - s.IndexOf("("));
+                            int.TryParse(wordsMatchedStr, out wordsMatched);
+                        }
                     }
 
-                    if (coord > 0.51)
+                    bool hit = false;
+                    if (coord > 0.51 || wordsMatched > 1)
+                    {
+                        hit = true;
+                    }
+
+                    if (hit)
                     {
                         ClientFulltextSearchResultBackOfficeItem resultItem = new ClientFulltextSearchResultBackOfficeItem();
 
