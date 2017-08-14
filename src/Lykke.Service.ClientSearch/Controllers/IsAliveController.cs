@@ -2,6 +2,7 @@
 using Lykke.Service.ClientSearch.Models;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.SwaggerGen.Annotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Lykke.Service.ClientSearch.Controllers
 {
@@ -12,6 +13,7 @@ namespace Lykke.Service.ClientSearch.Controllers
         /// Checks service is alive
         /// </summary>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet]
         [SwaggerOperation("IsAlive")]
         public IsAliveResponse Get()

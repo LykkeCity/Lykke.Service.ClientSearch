@@ -77,11 +77,11 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
                 {
                     if (word.Length > 5)
                     {
-                        sb.Append(word).Append("~0.65 ");
+                        sb.Append(word).Append("~0.79 ");
                     }
                     else if (word.Length == 5)
                     {
-                        sb.Append(word).Append("~0.65 ");
+                        sb.Append(word).Append("~0.79 ");
                     }
                     else if (word.Length == 4)
                     {
