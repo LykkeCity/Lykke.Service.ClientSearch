@@ -13,7 +13,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
     public class PersonalDataLoader
     {
         private static DateTimeOffset lastTimeStamp = DateTimeOffset.MinValue;
-        private static string[] lastLoadedEntites = null;
+        //private static string[] lastLoadedEntites = null;
 
         public static void LoadAllAsync(string connectionString, string tableName, ILog log)
         {
@@ -40,6 +40,8 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
             {
                 log.WriteErrorAsync(nameof(PersonalDataLoader), "LoadAllAsync", "GET", ex);
             }
+
+            /*
             finally
             {
                 new Thread(() =>
@@ -48,8 +50,10 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                 }
                 ).Start();
             }
+            */
         }
 
+        /*
         public static async void LoadNewRecords(string connectionString, string tableName, ILog log)
         {
             for (;;)
@@ -99,6 +103,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                 }
             }
         }
+        */
 
     }
 }

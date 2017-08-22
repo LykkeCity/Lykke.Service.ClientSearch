@@ -20,6 +20,7 @@ using Lykke.Service.ClientSearch.AzureRepositories.PersonalData;
 using AzureStorage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Lykke.JobTriggers.Extenstions;
 
 namespace Lykke.Service.ClientSearch
 {
@@ -90,13 +91,13 @@ namespace Lykke.Service.ClientSearch
 
             //builder.RegisterType<ApiKeyValidator>().As<IApiKeyValidator>();
 
-            //storages
-            /*
-            builder.RegisterInstance<INoSQLTableStorage<PersonalDataEntity>>(
-                new AzureTableStorage<PersonalDataEntity>(appSettings.PersonalDataConnection.ConnectionString,
-                    "PersonalData", log));
-                    
-             */
+            builder.RegisterInstance<INoSQLTableStorage<PersonalDataEntity>>(new AzureTableStorage<PersonalDataEntity>(appSettings.PersonalDataApi.PersonalDataConnection.ConnectionString, "PersonalData", log));
+            builder.RegisterType<PersonalDataRepository>().As<IPersonalDataRepository>();
+
+            builder.AddTriggers(pool =>
+            {
+                pool.AddDefaultConnection(appSettings.PersonalDataApi.PersonalDataConnection.ConnectionString);
+            });
 
 
             builder.Populate(services);

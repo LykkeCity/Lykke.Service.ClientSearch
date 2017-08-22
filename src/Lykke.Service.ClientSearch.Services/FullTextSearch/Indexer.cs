@@ -19,6 +19,33 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
         //public static Lucene.Net.Store.Directory IndexDirectory = FSDirectory.Open(new DirectoryInfo("/Projects.Lykke/index.dir"));
         public static Lucene.Net.Store.Directory IndexDirectory = new RAMDirectory();
 
+        private static FieldType storeFieldType;
+        private static FieldType searchFieldType;
+
+        static Indexer()
+        {
+            storeFieldType = new FieldType();
+            storeFieldType.IndexOptions = IndexOptions.DOCS_ONLY;
+            storeFieldType.IsIndexed = true;
+            storeFieldType.IsStored = true;
+            storeFieldType.IsTokenized = false;
+            storeFieldType.OmitNorms = true;
+            storeFieldType.Freeze();
+
+            searchFieldType = new FieldType();
+            searchFieldType.IndexOptions = IndexOptions.DOCS_ONLY;
+            searchFieldType.IsIndexed = true;
+            searchFieldType.IsStored = true;
+            searchFieldType.IsTokenized = true;
+            searchFieldType.OmitNorms = false;
+            //searchFieldType.StoreTermVectorOffsets = true;
+            //searchFieldType.StoreTermVectorPayloads = true;
+            //searchFieldType.StoreTermVectorPositions = true;
+            //searchFieldType.StoreTermVectors = true;
+            searchFieldType.Freeze();
+        }
+
+
         public static void CreateIndex(IEnumerable<PersonalDataEntity> docsToIndex)
         {
 
@@ -30,39 +57,8 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                 config.Similarity = new DefaultSimilarity();
                 //config.OpenMode = OpenMode.CREATE;
 
-                FieldType storeFieldType = new FieldType();
-                storeFieldType.IndexOptions = IndexOptions.DOCS_ONLY;
-                storeFieldType.IsIndexed = true;
-                storeFieldType.IsStored = true;
-                storeFieldType.IsTokenized = false;
-                storeFieldType.OmitNorms = true;
-                storeFieldType.Freeze();
-
-                FieldType searchFieldType = new FieldType();
-                searchFieldType.IndexOptions = IndexOptions.DOCS_ONLY;
-                searchFieldType.IsIndexed = true;
-                searchFieldType.IsStored = true;
-                searchFieldType.IsTokenized = true;
-                searchFieldType.OmitNorms = false;
-                //searchFieldType.StoreTermVectorOffsets = true;
-                //searchFieldType.StoreTermVectorPayloads = true;
-                //searchFieldType.StoreTermVectorPositions = true;
-                //searchFieldType.StoreTermVectors = true;
-                searchFieldType.Freeze();
-
-                try
-                {
-                }
-                catch
-                {
-
-                }
-
-
                 using (var writer = new IndexWriter(IndexDirectory, config))
                 {
-
-                    List<string> ccc = new List<string>();
                     foreach (PersonalDataEntity d in docsToIndex)
                     {
                         try
@@ -99,24 +95,9 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                                 doc.Add(new Field("Address", addressToIndex, searchFieldType));
                             }
 
-
                             writer.UpdateDocument(new Term("ClientId", id), doc, wAnalyzer);
 
-
                             writer.Commit();
-
-
-                            try
-                            {
-                                if (!String.IsNullOrWhiteSpace(nameToIndex))
-                                {
-                                    ccc.Add(nameToIndex);
-                                }
-                            }
-                            catch
-                            {
-
-                            }
 
                         }
                         catch (Exception ex)
@@ -126,12 +107,19 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                     }
 
 
-                    
+
                     //File.AppendAllLines("D:/Projects.Lykke/tmp/iiiii.htm", ccc);
 
                     //writer.Commit();
                 }
             }
         }
+
+        public static void IndexSingleDocument(PersonalDataEntity docToIndex)
+        {
+            CreateIndex(new PersonalDataEntity[] { docToIndex });
+        }
+
+
     }
 }
