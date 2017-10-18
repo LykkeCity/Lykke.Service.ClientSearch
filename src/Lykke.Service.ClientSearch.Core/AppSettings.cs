@@ -8,7 +8,7 @@ namespace Lykke.Service.ClientSearch.Core
 
         public PersonalDataApiSettings PersonalDataApi{ get; set; }
 
-        public ClientSearchServiceSettings ClientSearchServiceSettings { get; set; }
+        public ClientSearchServiceSettings ClientSearchService { get; set; }
 
         //public string ApiKey { get; set; }
 

@@ -138,13 +138,13 @@ namespace Lykke.Service.ClientSearch
 
             logAggregate.AddLogger(logToConsole);
 
-            var dbLogConnectionString = settings.ClientSearchServiceSettings.LogConnection.ConnectionString;
+            var dbLogConnectionString = settings.ClientSearchService.LogConnection.ConnectionString;
 
             // Creating azure storage logger, which logs own messages to concole log
             if (!string.IsNullOrEmpty(dbLogConnectionString) && !(dbLogConnectionString.StartsWith("${") && dbLogConnectionString.EndsWith("}")))
             {
                 logToAzureStorage = new LykkeLogToAzureStorage("Lykke.Service.ClientSearch", new AzureTableStorage<LogEntity>(
-                    dbLogConnectionString, settings.ClientSearchServiceSettings.LogConnection.TableName, logToConsole));
+                    dbLogConnectionString, settings.ClientSearchService.LogConnection.TableName, logToConsole));
 
                 logAggregate.AddLogger(logToAzureStorage);
             }
