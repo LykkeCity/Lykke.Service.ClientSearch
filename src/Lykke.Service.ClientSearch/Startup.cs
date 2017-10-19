@@ -75,13 +75,13 @@ namespace Lykke.Service.ClientSearch
             });
 
             var builder = new ContainerBuilder();
-            /*
+
             var appSettings = Environment.IsDevelopment()
                 ? Configuration.Get<AppSettings>()
                 : HttpSettingsLoader.Load<AppSettings>(Configuration.GetValue<string>("SettingsUrl"));
-                */
+
             //string settingsUrl = Configuration.GetValue<string>("SettingsUrl");
-            var appSettings = HttpSettingsLoader.Load<AppSettings>();
+            //var appSettings = HttpSettingsLoader.Load<AppSettings>();
 
             var log = CreateLogWithSlack(services, appSettings);
 
@@ -91,14 +91,13 @@ namespace Lykke.Service.ClientSearch
 
             //builder.RegisterType<ApiKeyValidator>().As<IApiKeyValidator>();
 
-            builder.RegisterInstance<INoSQLTableStorage<PersonalDataEntity>>(new AzureTableStorage<PersonalDataEntity>(appSettings.PersonalDataApi.PersonalDataConnection.ConnectionString, "PersonalData", log));
+            builder.RegisterInstance<INoSQLTableStorage<PersonalDataEntity>>(new AzureTableStorage<PersonalDataEntity>(appSettings.ClientSearchService.ClientPersonalInfoConnString, "PersonalData", log));
             builder.RegisterType<PersonalDataRepository>().As<IPersonalDataRepository>();
 
             builder.AddTriggers(pool =>
             {
-                pool.AddDefaultConnection(appSettings.PersonalDataApi.PersonalDataConnection.ConnectionString);
+                pool.AddDefaultConnection(appSettings.ClientSearchService.ClientPersonalInfoConnString);
             });
-
 
             builder.Populate(services);
             ApplicationContainer = builder.Build();
@@ -126,7 +125,7 @@ namespace Lykke.Service.ClientSearch
                 ApplicationContainer.Dispose();
             });
 
-            Task task = Task.Factory.StartNew(() => PersonalDataLoader.LoadAllAsync(settings.PersonalDataApi.PersonalDataConnection.ConnectionString, "PersonalData", log));
+            Task task = Task.Factory.StartNew(() => PersonalDataLoader.LoadAllAsync(settings.ClientSearchService.ClientPersonalInfoConnString, "PersonalData", log));
         }
 
         private static ILog CreateLogWithSlack(IServiceCollection services, AppSettings settings)

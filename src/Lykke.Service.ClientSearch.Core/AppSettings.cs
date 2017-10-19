@@ -4,7 +4,7 @@ namespace Lykke.Service.ClientSearch.Core
 {
     public class AppSettings
     {
-        public PersonalDataApiSettings PersonalDataApi{ get; set; }
+        //public PersonalDataServiceSettings PersonalDataServiceSettings { get; set; }
 
         public ClientSearchServiceSettings ClientSearchService { get; set; }
 
@@ -33,7 +33,7 @@ namespace Lykke.Service.ClientSearch.Core
         public string TableName { get; set; }
     }
 
-    public class PersonalDataApiSettings
+    public class PersonalDataServiceSettings
     {
         public AzureTableSettings PersonalDataConnection { get; set; }
     }
@@ -41,6 +41,7 @@ namespace Lykke.Service.ClientSearch.Core
     public class ClientSearchServiceSettings
     {
         public AzureTableSettings Log { get; set; }
+        public string ClientPersonalInfoConnString { get; set; }
     }
 
 
