@@ -10,13 +10,14 @@ namespace Lykke.Service.ClientSearch
 {
     public class Program
     {
-        public static void Main(string[] args)
+        static void Main(string[] args)
         {
             var webHostCancellationTokenSource = new CancellationTokenSource();
-            var end = new ManualResetEvent(false);
+            IWebHost webHost = null;
             TriggerHost triggerHost = null;
-            Task triggerHostTask = null;
             Task webHostTask = null;
+            Task triggerHostTask = null;
+            var end = new ManualResetEvent(false);
 
             try
             {
@@ -29,17 +30,7 @@ namespace Lykke.Service.ClientSearch
                     end.WaitOne();
                 };
 
-                /*
-                var host = new WebHostBuilder()
-                    .UseKestrel()
-                    .UseContentRoot(Directory.GetCurrentDirectory())
-                    .UseStartup<Startup>()
-                    .UseUrls("http://*:5048")
-                    .UseApplicationInsights()
-                    .Build();
-                    */
-
-                var host = new WebHostBuilder()
+                webHost = new WebHostBuilder()
                     .UseKestrel()
                     .UseUrls("http://*:5048")
                     .UseContentRoot(Directory.GetCurrentDirectory())
@@ -47,17 +38,15 @@ namespace Lykke.Service.ClientSearch
                     .UseApplicationInsights()
                     .Build();
 
+                triggerHost = new TriggerHost(webHost.Services);
 
-                triggerHost = new TriggerHost(host.Services);
-
-                webHostTask = Task.Factory.StartNew(() => host.RunAsync(webHostCancellationTokenSource.Token));
-
-                triggerHostTask = triggerHost.Start();
+                webHostTask = webHost.RunAsync(webHostCancellationTokenSource.Token);
+                webHostTask.Wait();
+                //triggerHostTask = triggerHost.Start();
 
                 // WhenAny to handle any task termination with exception, 
                 // or gracefully termination of webHostTask
-                Task.WhenAny(webHostTask, triggerHostTask).Wait();
-
+                //Task.WhenAny(webHostTask, triggerHostTask).Wait();
             }
             finally
             {
@@ -70,8 +59,6 @@ namespace Lykke.Service.ClientSearch
                 triggerHostTask?.Wait();
 
                 end.Set();
-
-                Console.WriteLine("Terminated");
             }
         }
     }
