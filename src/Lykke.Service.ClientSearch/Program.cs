@@ -50,7 +50,7 @@ namespace Lykke.Service.ClientSearch
 
                 triggerHost = new TriggerHost(host.Services);
 
-                webHostTask = Task.Factory.StartNew(() => host.Run(webHostCancellationTokenSource.Token));
+                webHostTask = Task.Factory.StartNew(() => host.RunAsync(webHostCancellationTokenSource.Token));
 
                 triggerHostTask = triggerHost.Start();
 
