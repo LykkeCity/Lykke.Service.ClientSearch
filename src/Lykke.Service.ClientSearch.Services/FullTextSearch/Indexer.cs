@@ -80,11 +80,11 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
 
                 using (var writer = new IndexWriter(IndexDirectory, config))
                 {
-                    List<string> indexedValues = new List<string>();
+                    //List<string> indexedValues = new List<string>();
 
                     foreach (PersonalDataEntity pd in docsToIndex)
                     {
-                        string indexedValue = "";
+                        //string indexedValue = "";
 
                         try
                         {
@@ -152,28 +152,30 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
 
                                 doc.Add(new Field("ClientNameAndDayOfBirth", utf8Name, phraseSearchFieldType));
 
-                                indexedValue = $"{fullNameAndDoB} || {utf8Name}";
+                                //indexedValue = $"{fullNameAndDoB} || {utf8Name}";
                                 somethingToIndex = true;
                             }
 
                             if (somethingToIndex)
                             {
+                                /*
                                 if (!String.IsNullOrWhiteSpace(indexedValue))
                                 {
                                     indexedValue += " " + id;
                                 }
-
+                                */
                                 writer.UpdateDocument(new Term("ClientId", id), doc, wAnalyzer);
                             }
                             else
                             {
                                 writer.DeleteDocuments(new Term("ClientId", id));
                             }
-
+                            /*
                             if (!String.IsNullOrWhiteSpace(indexedValue))
                             {
                                 indexedValues.Add(indexedValue);
                             }
+                            */
 
                             writer.Commit();
                         }
@@ -185,7 +187,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
 
 
 
-                    File.AppendAllLines("D:/Projects.Lykke/tmp/iiiii.htm", indexedValues);
+                    //File.AppendAllLines("D:/Projects.Lykke/tmp/iiiii.htm", indexedValues);
 
                     //writer.Commit();
                 }
