@@ -8,25 +8,30 @@ using System.Threading.Tasks;
 
 namespace Lykke.Service.ClientSearch
 {
-    public class Program
+    public static class Program
     {
+        static CancellationTokenSource webHostCancellationTokenSource = new CancellationTokenSource();
+        static IWebHost webHost = null;
+        static TriggerHost triggerHost = null;
+        static Task webHostTask = null;
+        static Task triggerHostTask = null;
+        static ManualResetEvent end = new ManualResetEvent(false);
+
+        public static void StartTriggers()
+        {
+            triggerHost = new TriggerHost(webHost.Services);
+            triggerHostTask = triggerHost.Start();
+        }
+
         static void Main(string[] args)
         {
-            var webHostCancellationTokenSource = new CancellationTokenSource();
-            IWebHost webHost = null;
-            TriggerHost triggerHost = null;
-            Task webHostTask = null;
-            Task triggerHostTask = null;
-            var end = new ManualResetEvent(false);
 
             try
             {
                 AssemblyLoadContext.Default.Unloading += ctx =>
                 {
                     Console.WriteLine("SIGTERM recieved");
-
                     webHostCancellationTokenSource.Cancel();
-
                     end.WaitOne();
                 };
 
@@ -38,11 +43,9 @@ namespace Lykke.Service.ClientSearch
                     .UseApplicationInsights()
                     .Build();
 
-                triggerHost = new TriggerHost(webHost.Services);
 
                 webHostTask = webHost.RunAsync(webHostCancellationTokenSource.Token);
                 webHostTask.Wait();
-                //triggerHostTask = triggerHost.Start();
 
                 // WhenAny to handle any task termination with exception, 
                 // or gracefully termination of webHostTask

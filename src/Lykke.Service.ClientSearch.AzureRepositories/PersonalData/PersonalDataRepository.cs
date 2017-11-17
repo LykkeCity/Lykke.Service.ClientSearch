@@ -20,7 +20,8 @@ namespace Lykke.Service.ClientSearch.AzureRepositories.PersonalData
             var partitionKey = GeneratePartitionKey();
             var rowKey = GenerateRowKey(id);
 
-            return await _tableStorage.GetDataAsync(partitionKey, rowKey);
+            PersonalDataEntity pd = await _tableStorage.GetDataAsync(partitionKey, rowKey);
+            return pd;
         }
 
         public static string GeneratePartitionKey()

@@ -15,6 +15,7 @@
     <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00004" />
     <PackageReference Include="Lucene.Net.Queries" Version="4.8.0-beta00004" />
     <PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00004" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -113,7 +113,7 @@ namespace Lykke.Service.ClientSearch
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseLykkeMiddleware("ClientSearch", ex => new {Message = "Technical problem"});
+            app.UseLykkeMiddleware("ClientSearch", ex => new { Message = "Technical problem" });
 
             app.UseMvc();
             app.UseSwagger();
@@ -125,7 +125,10 @@ namespace Lykke.Service.ClientSearch
                 ApplicationContainer.Dispose();
             });
 
-            Task task = Task.Factory.StartNew(() => PersonalDataLoader.LoadAllAsync(settings.ClientSearchService.ClientPersonalInfoConnString, "PersonalData", log));
+            Task task = Task.Factory.StartNew(() => {
+                PersonalDataLoader.LoadAllAsync(settings.ClientSearchService.ClientPersonalInfoConnString, "PersonalData", log);
+                Program.StartTriggers();
+            });
         }
 
         private static ILog CreateLogWithSlack(IServiceCollection services, AppSettings settings)

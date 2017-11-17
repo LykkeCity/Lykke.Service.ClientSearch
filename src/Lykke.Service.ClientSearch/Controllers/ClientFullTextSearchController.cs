@@ -34,5 +34,12 @@ namespace Lykke.Service.ClientSearch.Controllers
             return Searcher.Search(requestItems);
         }
 
+        [HttpPost]
+        [Route("searchForExistingClient")]
+        public IEnumerable<string> SearchForExistingClient([FromBody] ExistingClientSearchRequest req)
+        {
+            return SearcherForExistingClients.Search(req.Name, req.DateOfBirth);
+        }
+
     }
 }
