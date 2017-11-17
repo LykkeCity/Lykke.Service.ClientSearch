@@ -6,7 +6,7 @@ namespace Lykke.Service.ClientSearch.Client
 {
     public static class AutofacExtension
     {
-        public static void RegisterLykkeServiceClient(this ContainerBuilder builder, string serviceUrl, ILog log)
+        public static void RegisterClientSearchClient(this ContainerBuilder builder, string serviceUrl, ILog log)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (serviceUrl == null) throw new ArgumentNullException(nameof(serviceUrl));
