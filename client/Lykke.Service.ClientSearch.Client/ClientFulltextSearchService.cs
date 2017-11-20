@@ -33,7 +33,7 @@ namespace Lykke.Service.ClientSearch.Client
 
         #region Helpers
 
-        private IFlurlRequest GetClient(string action)
+        private IFlurlClient GetClient(string action)
         {
             return $"{_serviceUrl}/api/ClientFullTextSearch/{action}".WithHeader("api-key", "");
         }
