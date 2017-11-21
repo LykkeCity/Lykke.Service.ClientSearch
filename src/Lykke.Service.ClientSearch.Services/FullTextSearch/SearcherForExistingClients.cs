@@ -6,6 +6,7 @@ using Lucene.Net.Search;
 using Lucene.Net.Search.Similarities;
 using Lucene.Net.Util;
 using Lykke.Service.ClientSearch.Core.FullTextSearch;
+using Lykke.Service.ClientSearch.Services.FullTextSearch;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,11 +16,11 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
-namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
+namespace Lykke.Service.ClientSearch.FullTextSearch
 {
     public class SearcherForExistingClients
     {
-        public static IList<string> Search(string name, string dateOfBirth)
+        public static IList<string> Search(string name, DateTime dateOfBirth)
         {
             Lucene.Net.Store.Directory dir = Indexer.IndexDirectory;
 
@@ -41,7 +42,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
             StringBuilder sb = new StringBuilder();
             if (!String.IsNullOrWhiteSpace(name))
             {
-                string phrase = $"{namePart} {dateOfBirth}";
+                string phrase = $"{namePart} {dateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
                 sb.Append($"ClientNameAndDayOfBirth: \"{phrase}\"");
             }
 

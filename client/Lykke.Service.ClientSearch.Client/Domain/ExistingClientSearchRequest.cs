@@ -7,6 +7,6 @@ namespace Lykke.Service.ClientSearch.Client.Domain
     public class ExistingClientSearchRequest
     {
         public string Name { get; set; }
-        public string DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; }
     }
 }

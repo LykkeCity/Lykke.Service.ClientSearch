@@ -14,7 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lykke.Service.ClientSearch.FullTextSearch.FullTextSearch
+namespace Lykke.Service.ClientSearch.FullTextSearch
 {
     public class Searcher
     {

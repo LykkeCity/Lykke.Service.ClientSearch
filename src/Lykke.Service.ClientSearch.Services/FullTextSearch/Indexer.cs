@@ -140,7 +140,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
 
                             if (!String.IsNullOrWhiteSpace(fullName))
                             {
-                                string fullNameAndDoB = $"{fullName} {pd.DateOfBirth.ToString("yyyyMMdd")}";
+                                string fullNameAndDoB = $"{fullName} {pd.DateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
                                 //doc.Add(new Field("ClientNameAndDayOfBirth", fullNameAndDoB, phraseSearchFieldType));
 
                                 string utf8Name = HtmlEncoder.Default.Encode(fullNameAndDoB); // encode special symbols
