@@ -8,6 +8,7 @@ namespace Lykke.Service.ClientSearch.Core
 
         public ClientSearchServiceSettings ClientSearchService { get; set; }
 
+        public SlackNotificationsSettings SlackNotifications { get; set; }
     }
 
     public class SlackNotificationsSettings
@@ -40,7 +41,7 @@ namespace Lykke.Service.ClientSearch.Core
 
     public class ClientSearchServiceSettings
     {
-        public AzureTableSettings Log { get; set; }
+        //public AzureTableSettings Log { get; set; }
         public string ClientPersonalInfoConnString { get; set; }
     }
 

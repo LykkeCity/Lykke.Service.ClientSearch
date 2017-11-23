@@ -140,6 +140,7 @@ namespace Lykke.Service.ClientSearch
 
             logAggregate.AddLogger(logToConsole);
 
+            /*
             var dbLogConnectionString = settings.ClientSearchService.Log.ConnectionString;
 
             // Creating azure storage logger, which logs own messages to concole log
@@ -148,11 +149,11 @@ namespace Lykke.Service.ClientSearch
                 logToAzureStorage = new LykkeLogToAzureStorage("Lykke.Service.ClientSearch", new AzureTableStorage<LogEntity>(dbLogConnectionString, settings.ClientSearchService.Log.TableName, logToConsole));
                 logAggregate.AddLogger(logToAzureStorage);
             }
+            */
 
             // Creating aggregate log, which logs to console and to azure storage, if last one specified
             var log = logAggregate.CreateLogger();
 
-            /*
             // Creating slack notification service, which logs own azure queue processing messages to aggregate log
             var slackService = services.UseSlackNotificationsSenderViaAzureQueue(new AzureQueueIntegration.AzureQueueSettings
             {
@@ -162,7 +163,6 @@ namespace Lykke.Service.ClientSearch
 
             // Finally, setting slack notification for azure storage log, which will forward necessary message to slack service
             logToAzureStorage?.SetSlackNotification(slackService);
-            */
 
             return log;
         }
