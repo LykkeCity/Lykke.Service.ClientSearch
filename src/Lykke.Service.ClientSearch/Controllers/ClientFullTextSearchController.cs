@@ -24,6 +24,7 @@ namespace Lykke.Service.ClientSearch.Controllers
         {
         }
 
+        /*
         /// <summary>
         /// fulltext search for clients
         /// </summary>
@@ -33,6 +34,7 @@ namespace Lykke.Service.ClientSearch.Controllers
         {
             return Searcher.Search(requestItems);
         }
+        */
 
         [HttpPost]
         [Route("searchForExistingClient")]
