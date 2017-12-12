@@ -140,17 +140,22 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
 
                             if (!String.IsNullOrWhiteSpace(fullName))
                             {
-                                string fullNameAndDoB = $"{fullName} {pd.DateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
+                                // commented because search switched from FullName to FirstName + LastName on Alexander Rumyantsev request
+                                //string fullNameAndDoB = $"{fullName} {pd.DateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
+
+                                // search switched from FullName to FirstName + LastName on Alexander Rumyantsev request
+                                string fullNameAndDoB = $"{firstAndLastName} {pd.DateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
+
                                 //doc.Add(new Field("ClientNameAndDayOfBirth", fullNameAndDoB, phraseSearchFieldType));
 
-                                string utf8Name = HtmlEncoder.Default.Encode(fullNameAndDoB); // encode special symbols
-                                utf8Name = utf8Name.Replace("&#x", "#");
+                                string utf8FullNameAndDoB = HtmlEncoder.Default.Encode(fullNameAndDoB); // encode special symbols
+                                utf8FullNameAndDoB = utf8FullNameAndDoB.Replace("&#x", "#");
                                 foreach (char chToReplace in reservedChars)
                                 {
-                                    utf8Name = utf8Name.Replace(chToReplace + "", String.Format("#{0:X}", Convert.ToInt32(chToReplace)));
+                                    utf8FullNameAndDoB = utf8FullNameAndDoB.Replace(chToReplace + "", String.Format("#{0:X}", Convert.ToInt32(chToReplace)));
                                 }
 
-                                doc.Add(new Field("ClientNameAndDayOfBirth", utf8Name, phraseSearchFieldType));
+                                doc.Add(new Field("ClientNameAndDayOfBirth", utf8FullNameAndDoB, phraseSearchFieldType));
 
                                 //indexedValue = $"{fullNameAndDoB} || {utf8Name}";
                                 somethingToIndex = true;
