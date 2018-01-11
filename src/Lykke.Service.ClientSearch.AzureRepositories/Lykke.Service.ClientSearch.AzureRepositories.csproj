@@ -8,11 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lykke.AzureStorage" Version="1.2.24" />
+    <PackageReference Include="Lykke.AzureStorage" Version="2.1.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Lykke.Service.ClientSearch.Core\Lykke.Service.ClientSearch.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="PersonalData\" />
   </ItemGroup>
 
 </Project>

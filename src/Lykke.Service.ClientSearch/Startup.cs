@@ -16,11 +16,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using Lykke.Service.ClientSearch.FullTextSearch;
-using Lykke.Service.ClientSearch.AzureRepositories.PersonalData;
-using AzureStorage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Lykke.JobTriggers.Extenstions;
+using Lykke.Service.PersonalData.Contract;
+using Lykke.Service.PersonalData.Client;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace Lykke.Service.ClientSearch
 {
@@ -29,7 +31,6 @@ namespace Lykke.Service.ClientSearch
         public IHostingEnvironment Environment { get; }
         public IContainer ApplicationContainer { get; set; }
         public IConfigurationRoot Configuration { get; }
-        public static AppSettings settings { get; set; }
 
         public Startup(IHostingEnvironment env)
         {
@@ -45,14 +46,6 @@ namespace Lykke.Service.ClientSearch
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            /*
-            services.AddMvc()
-                .AddJsonOptions(options =>
-                {
-                    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
-                });
-            */
-
             services.AddMvc(x =>
             {
                 if (!Environment.IsDevelopment())
@@ -76,27 +69,17 @@ namespace Lykke.Service.ClientSearch
 
             var builder = new ContainerBuilder();
 
-            var appSettings = Environment.IsDevelopment()
-                ? Configuration.Get<AppSettings>()
-                : HttpSettingsLoader.Load<AppSettings>(Configuration.GetValue<string>("SettingsUrl"));
-
-            //string settingsUrl = Configuration.GetValue<string>("SettingsUrl");
-            //var appSettings = HttpSettingsLoader.Load<AppSettings>();
+            var appSettings = Configuration.LoadSettings<AppSettings>();
 
             var log = CreateLogWithSlack(services, appSettings);
 
             builder.RegisterModule(new ServiceModule(log));
 
-            builder.RegisterInstance<AppSettings>(appSettings).SingleInstance();
-
-            //builder.RegisterType<ApiKeyValidator>().As<IApiKeyValidator>();
-
-            builder.RegisterInstance<INoSQLTableStorage<PersonalDataEntity>>(new AzureTableStorage<PersonalDataEntity>(appSettings.ClientSearchService.ClientPersonalInfoConnString, "PersonalData", log));
-            builder.RegisterType<PersonalDataRepository>().As<IPersonalDataRepository>();
+            builder.RegisterInstance<IPersonalDataService>(new PersonalDataService(appSettings.CurrentValue.PersonalDataServiceClient, log));
 
             builder.AddTriggers(pool =>
             {
-                pool.AddDefaultConnection(appSettings.ClientSearchService.ClientPersonalInfoConnString);
+                pool.AddDefaultConnection(appSettings.CurrentValue.ClientSearchService.ClientPersonalInfoConnString);
             });
 
             builder.Populate(services);
@@ -106,12 +89,27 @@ namespace Lykke.Service.ClientSearch
             return new AutofacServiceProvider(ApplicationContainer);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime, AppSettings settings, ILog log)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime, IPersonalDataService personalDataService, ILog log)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.Use((context, next) =>
+            {
+                if (!PersonalDataLoader.indexCreated)
+                {
+                    using (var writer = new StreamWriter(context.Response.Body))
+                    {
+                        context.Response.StatusCode = 503;
+                        return context.Response.WriteAsync("Search index is not ready yet");
+                    }
+                }
+
+                return next();
+            });
+
 
             app.UseLykkeMiddleware("ClientSearch", ex => new { Message = "Technical problem" });
 
@@ -126,45 +124,48 @@ namespace Lykke.Service.ClientSearch
             });
 
             Task task = Task.Factory.StartNew(() => {
-                PersonalDataLoader.LoadAllAsync(settings.ClientSearchService.ClientPersonalInfoConnString, "PersonalData", log);
-                Program.StartTriggers();
+                PersonalDataLoader.LoadAllPersonalDataForIndexing(personalDataService, log);
+                Program.Start();
             });
         }
 
-        private static ILog CreateLogWithSlack(IServiceCollection services, AppSettings settings)
+        private static ILog CreateLogWithSlack(IServiceCollection services, IReloadingManager<AppSettings> settings)
         {
-            LykkeLogToAzureStorage logToAzureStorage = null;
+            var consoleLogger = new LogToConsole();
+            var aggregateLogger = new AggregateLogger();
 
-            var logToConsole = new LogToConsole();
-            var logAggregate = new LogAggregate();
-
-            logAggregate.AddLogger(logToConsole);
-
-            /*
-            var dbLogConnectionString = settings.ClientSearchService.Log.ConnectionString;
-
-            // Creating azure storage logger, which logs own messages to concole log
-            if (!string.IsNullOrEmpty(dbLogConnectionString) && !(dbLogConnectionString.StartsWith("${") && dbLogConnectionString.EndsWith("}")))
-            {
-                logToAzureStorage = new LykkeLogToAzureStorage("Lykke.Service.ClientSearch", new AzureTableStorage<LogEntity>(dbLogConnectionString, settings.ClientSearchService.Log.TableName, logToConsole));
-                logAggregate.AddLogger(logToAzureStorage);
-            }
-            */
-
-            // Creating aggregate log, which logs to console and to azure storage, if last one specified
-            var log = logAggregate.CreateLogger();
+            aggregateLogger.AddLog(consoleLogger);
 
             // Creating slack notification service, which logs own azure queue processing messages to aggregate log
             var slackService = services.UseSlackNotificationsSenderViaAzureQueue(new AzureQueueIntegration.AzureQueueSettings
             {
-                ConnectionString = settings.SlackNotifications.AzureQueue.ConnectionString,
-                QueueName = settings.SlackNotifications.AzureQueue.QueueName
-            }, log);
+                ConnectionString = settings.CurrentValue.SlackNotifications.AzureQueue.ConnectionString,
+                QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
+            }, aggregateLogger);
 
-            // Finally, setting slack notification for azure storage log, which will forward necessary message to slack service
-            logToAzureStorage?.SetSlackNotification(slackService);
+            var dbLogConnectionStringManager = settings.Nested(x => x.ClientSearchService.ClientPersonalInfoConnString);
+            var dbLogConnectionString = dbLogConnectionStringManager.CurrentValue;
 
-            return log;
+            // Creating azure storage logger, which logs own messages to concole log
+            if (!string.IsNullOrEmpty(dbLogConnectionString) && !(dbLogConnectionString.StartsWith("${") && dbLogConnectionString.EndsWith("}")))
+            {
+                var persistenceManager = new LykkeLogToAzureStoragePersistenceManager(
+                    AzureTableStorage<LogEntity>.Create(dbLogConnectionStringManager, "LykkeClientSearchServiceLog", consoleLogger),
+                    consoleLogger);
+
+                var slackNotificationsManager = new LykkeLogToAzureSlackNotificationsManager(slackService, consoleLogger);
+
+                var azureStorageLogger = new LykkeLogToAzureStorage(
+                    persistenceManager,
+                    slackNotificationsManager,
+                    consoleLogger);
+
+                azureStorageLogger.Start();
+
+                aggregateLogger.AddLog(azureStorageLogger);
+            }
+
+            return aggregateLogger;
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using Common;
 using Common.Log;
 using Lykke.JobTriggers.Triggers.Attributes;
-using Lykke.Service.ClientSearch.AzureRepositories.PersonalData;
 using Lykke.Service.ClientSearch.FullTextSearch;
 using Lykke.Service.ClientSearch.Models;
+using Lykke.Service.PersonalData.Contract;
+using Lykke.Service.PersonalData.Contract.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,12 +15,12 @@ namespace Lykke.Service.ClientSearch.Modules
     class QueueMessageHandler
     {
         private readonly ILog _log;
-        private readonly IPersonalDataRepository _personalDataRepository;
+        private readonly IPersonalDataService _personalDataService;
 
-        public QueueMessageHandler(ILog log, IPersonalDataRepository personalDataRepository)
+        public QueueMessageHandler(ILog log, IPersonalDataService personalDataService)
         {
             _log = log;
-            _personalDataRepository = personalDataRepository;
+            _personalDataService = personalDataService;
         }
 
         [QueueTrigger("client-search-reindex-documents", 1000)]
@@ -27,7 +28,7 @@ namespace Lykke.Service.ClientSearch.Modules
         {
             try
             {
-                PersonalDataEntity docToIndex = await _personalDataRepository.GetAsync(req.ClientId);
+                IPersonalData docToIndex = await _personalDataService.GetAsync(req.ClientId);
                 if (docToIndex != null)
                 {
                     Indexer.IndexSingleDocument(docToIndex);

@@ -1,8 +1,6 @@
-﻿using Lucene.Net.Search.Similarities;
+﻿/*
+using Lucene.Net.Search.Similarities;
 using Lucene.Net.Util;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Lucene.Net.Index;
 
 namespace Lykke.Service.ClientSearch.Services.FullTextSearch
@@ -45,3 +43,4 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
     }
 }
+*/

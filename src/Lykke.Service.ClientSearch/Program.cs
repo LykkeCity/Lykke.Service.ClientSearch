@@ -17,7 +17,7 @@ namespace Lykke.Service.ClientSearch
         static Task triggerHostTask = null;
         static ManualResetEvent end = new ManualResetEvent(false);
 
-        public static void StartTriggers()
+        public static void Start()
         {
             triggerHost = new TriggerHost(webHost.Services);
             triggerHostTask = triggerHost.Start();
@@ -25,7 +25,6 @@ namespace Lykke.Service.ClientSearch
 
         static void Main(string[] args)
         {
-
             try
             {
                 AssemblyLoadContext.Default.Unloading += ctx =>
@@ -43,13 +42,8 @@ namespace Lykke.Service.ClientSearch
                     .UseApplicationInsights()
                     .Build();
 
-
                 webHostTask = webHost.RunAsync(webHostCancellationTokenSource.Token);
                 webHostTask.Wait();
-
-                // WhenAny to handle any task termination with exception, 
-                // or gracefully termination of webHostTask
-                //Task.WhenAny(webHostTask, triggerHostTask).Wait();
             }
             finally
             {

@@ -1,14 +1,11 @@
-﻿using Lucene.Net.Analysis.Core;
-using Lucene.Net.Analysis.Standard;
+﻿using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
-using Lucene.Net.QueryParsers.Classic;
-using Lucene.Net.Search;
 using Lucene.Net.Search.Similarities;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
-using Lykke.Service.ClientSearch.AzureRepositories.PersonalData;
 using Lykke.Service.ClientSearch.Services.FullTextSearch;
+using Lykke.Service.PersonalData.Contract.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,6 +24,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
         private static FieldType phraseSearchFieldType;
 
         private static char[] reservedChars = new char[] { '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/', ',', '.', ';' };
+        private static string JUMIO_NA = "";
 
 
         static Indexer()
@@ -45,10 +43,6 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
             searchFieldType.IsStored = true;
             searchFieldType.IsTokenized = true;
             searchFieldType.OmitNorms = false;
-            //searchFieldType.StoreTermVectorOffsets = true;
-            //searchFieldType.StoreTermVectorPayloads = true;
-            //searchFieldType.StoreTermVectorPositions = true;
-            //searchFieldType.StoreTermVectors = true;
             searchFieldType.Freeze();
 
             phraseSearchFieldType = new FieldType();
@@ -57,151 +51,129 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
             phraseSearchFieldType.IsStored = true;
             phraseSearchFieldType.IsTokenized = true;
             phraseSearchFieldType.OmitNorms = true;
-            //phraseSearchFieldType.StoreTermVectorOffsets = true;
-            //phraseSearchFieldType.StoreTermVectorPayloads = true;
-            //phraseSearchFieldType.StoreTermVectorPositions = true;
-            //phraseSearchFieldType.StoreTermVectors = true;
             phraseSearchFieldType.Freeze();
-
         }
 
-
-        public static void CreateIndex(IEnumerable<PersonalDataEntity> docsToIndex)
+        public static void CreateIndex(IEnumerable<IPersonalData> docsToIndex)
         {
 
             using (var wAnalyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48))
-            //using (var wAnalyzer = new WhitespaceAnalyzer(LuceneVersion.LUCENE_48))
             {
                 IndexWriterConfig config = new IndexWriterConfig(LuceneVersion.LUCENE_48, wAnalyzer);
                 config.OpenMode = OpenMode.CREATE_OR_APPEND;
-                //config.Similarity = new BM25Similarity();
                 config.Similarity = new DefaultSimilarity();
-                //config.OpenMode = OpenMode.CREATE;
 
                 using (var writer = new IndexWriter(IndexDirectory, config))
                 {
                     //List<string> indexedValues = new List<string>();
 
-                    foreach (PersonalDataEntity pd in docsToIndex)
+                    foreach (IPersonalData pd in docsToIndex)
                     {
                         //string indexedValue = "";
 
-                        try
+                        bool somethingToIndex = false;
+
+                        string id = pd.Id;
+
+                        var doc = new Document();
+                        doc.Add(new Field("ClientId", id, storeFieldType));
+
+                        /*
+                        string nameToIndex = pd.FullName ?? "";
+                        if (!String.IsNullOrWhiteSpace(pd.FirstName) && !nameToIndex.Contains(pd.FirstName))
                         {
-                            bool somethingToIndex = false;
+                            nameToIndex += " " + pd.FirstName;
+                        }
+                        if (!String.IsNullOrWhiteSpace(pd.LastName) && !nameToIndex.Contains(pd.LastName))
+                        {
+                            nameToIndex += " " + pd.LastName;
+                        }
+                        nameToIndex = nameToIndex.Trim();
+                        if (nameToIndex.Length > 0)
+                        {
+                            doc.Add(new Field("Name", nameToIndex, searchFieldType));
+                            somethingToIndex = true;
+                        }
+                        */
 
-                            string nameToIndex = pd.FullName ?? "";
-                            if (!String.IsNullOrWhiteSpace(pd.FirstName) && !nameToIndex.Contains(pd.FirstName))
-                            {
-                                nameToIndex += " " + pd.FirstName;
-                            }
-                            if (!String.IsNullOrWhiteSpace(pd.LastName) && !nameToIndex.Contains(pd.LastName))
-                            {
-                                nameToIndex += " " + pd.LastName;
-                            }
+                        string nameAndDoB = CreateNameAndDOBToIndex(pd);
+                        if (nameAndDoB != null)
+                        {
+                            doc.Add(new Field("ClientNameAndDayOfBirth", nameAndDoB, phraseSearchFieldType));
+                            //indexedValue = $"{nameAndDoB}";
+                            somethingToIndex = true;
+                        }
 
-                            string id = pd.Id;
 
-                            var doc = new Document();
-                            doc.Add(new Field("ClientId", id, storeFieldType));
-                            nameToIndex = nameToIndex.Trim();
-                            if (nameToIndex.Length > 0)
-                            {
-                                doc.Add(new Field("Name", nameToIndex, searchFieldType));
-                                somethingToIndex = true;
-                            }
-
-                            /*
-                            if (!String.IsNullOrWhiteSpace(pd.Address))
-                            {
-                                doc.Add(new Field("Address", addressToIndex, searchFieldType));
-                                somethingToIndex = true;
-                            }
-                            */
-
-                            string fullName = pd.FullName;
-                            string firstAndLastName = $"{pd.FirstName} {pd.LastName}";
-                            if (string.IsNullOrWhiteSpace(fullName))
-                            {
-                                fullName = firstAndLastName;
-                            }
-
-                            if (!String.IsNullOrWhiteSpace(fullName))
-                            {
-                                doc.Add(new Field("FullName", fullName, searchFieldType));
-                                somethingToIndex = true;
-                            }
-
-                            if (!String.IsNullOrWhiteSpace(firstAndLastName))
-                            {
-                                doc.Add(new Field("FirstAndLastName", firstAndLastName, searchFieldType));
-                                somethingToIndex = true;
-                            }
-
-                            if (!String.IsNullOrWhiteSpace(fullName))
-                            {
-                                // commented because search switched from FullName to FirstName + LastName on Alexander Rumyantsev request
-                                //string fullNameAndDoB = $"{fullName} {pd.DateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
-
-                                // search switched from FullName to FirstName + LastName on Alexander Rumyantsev request
-                                string fullNameAndDoB = $"{firstAndLastName} {pd.DateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
-
-                                //doc.Add(new Field("ClientNameAndDayOfBirth", fullNameAndDoB, phraseSearchFieldType));
-
-                                string utf8FullNameAndDoB = HtmlEncoder.Default.Encode(fullNameAndDoB); // encode special symbols
-                                utf8FullNameAndDoB = utf8FullNameAndDoB.Replace("&#x", "#");
-                                foreach (char chToReplace in reservedChars)
-                                {
-                                    utf8FullNameAndDoB = utf8FullNameAndDoB.Replace(chToReplace + "", String.Format("#{0:X}", Convert.ToInt32(chToReplace)));
-                                }
-
-                                doc.Add(new Field("ClientNameAndDayOfBirth", utf8FullNameAndDoB, phraseSearchFieldType));
-
-                                //indexedValue = $"{fullNameAndDoB} || {utf8Name}";
-                                somethingToIndex = true;
-                            }
-
-                            if (somethingToIndex)
-                            {
-                                /*
-                                if (!String.IsNullOrWhiteSpace(indexedValue))
-                                {
-                                    indexedValue += " " + id;
-                                }
-                                */
-                                writer.UpdateDocument(new Term("ClientId", id), doc, wAnalyzer);
-                            }
-                            else
-                            {
-                                writer.DeleteDocuments(new Term("ClientId", id));
-                            }
+                        if (somethingToIndex)
+                        {
                             /*
                             if (!String.IsNullOrWhiteSpace(indexedValue))
                             {
-                                indexedValues.Add(indexedValue);
+                                indexedValue += " " + id;
                             }
                             */
-
-                            writer.Commit();
+                            writer.UpdateDocument(new Term("ClientId", id), doc, wAnalyzer);
                         }
-                        catch (Exception ex)
+                        else
                         {
-
+                            writer.DeleteDocuments(new Term("ClientId", id));
                         }
+                        /*
+                        if (!String.IsNullOrWhiteSpace(indexedValue))
+                        {
+                            indexedValues.Add(indexedValue);
+                        }
+                        */
+
+                        writer.Commit();
                     }
 
 
 
                     //File.AppendAllLines("D:/Projects.Lykke/tmp/iiiii.htm", indexedValues);
-
-                    //writer.Commit();
                 }
             }
         }
 
-        public static void IndexSingleDocument(PersonalDataEntity docToIndex)
+        public static string CreateNameAndDOBToIndex(IPersonalData pd)
         {
-            CreateIndex(new PersonalDataEntity[] { docToIndex });
+            if (!pd.DateOfBirth.HasValue)
+            {
+                return null;
+            }
+
+            List<string> parts = new List<string>();
+            if (pd.FirstName != JUMIO_NA && !String.IsNullOrWhiteSpace(pd.FirstName))
+            {
+                parts.Add(pd.FirstName);
+            }
+            if (pd.LastName != JUMIO_NA && !String.IsNullOrWhiteSpace(pd.LastName))
+            {
+                parts.Add(pd.LastName);
+            }
+            if (parts.Count == 0)
+            {
+                return null;
+            }
+
+            string firstAndLastName = String.Join(" ", parts);
+
+            string fullNameAndDoB = $"{firstAndLastName} {pd.DateOfBirth.Value.ToString(FullTextSearchCommon.DateTimeFormat)}";
+
+            string utf8FullNameAndDoB = HtmlEncoder.Default.Encode(fullNameAndDoB); // encode special symbols
+            utf8FullNameAndDoB = utf8FullNameAndDoB.Replace("&#x", "#");
+            foreach (char chToReplace in reservedChars)
+            {
+                utf8FullNameAndDoB = utf8FullNameAndDoB.Replace(chToReplace + "", String.Format("#{0:X}", Convert.ToInt32(chToReplace)));
+            }
+
+            return utf8FullNameAndDoB;
+        }
+
+        public static void IndexSingleDocument(IPersonalData docToIndex)
+        {
+            CreateIndex(new IPersonalData [] { docToIndex });
         }
 
 

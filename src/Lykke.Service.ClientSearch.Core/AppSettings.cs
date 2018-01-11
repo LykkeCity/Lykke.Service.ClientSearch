@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Lykke.Service.PersonalData.Settings;
+using System.ComponentModel.DataAnnotations;
 
 namespace Lykke.Service.ClientSearch.Core
 {
     public class AppSettings
     {
-        //public PersonalDataServiceSettings PersonalDataServiceSettings { get; set; }
+        public PersonalDataServiceClientSettings PersonalDataServiceClient { get; set; }
 
         public ClientSearchServiceSettings ClientSearchService { get; set; }
 
@@ -25,23 +26,8 @@ namespace Lykke.Service.ClientSearch.Core
         public string QueueName { get; set; }
     }
 
-    public class AzureTableSettings
-    {
-        [Required(AllowEmptyStrings = false)]
-        public string ConnectionString { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        public string TableName { get; set; }
-    }
-
-    public class PersonalDataServiceSettings
-    {
-        public AzureTableSettings PersonalDataConnection { get; set; }
-    }
-
     public class ClientSearchServiceSettings
     {
-        //public AzureTableSettings Log { get; set; }
         public string ClientPersonalInfoConnString { get; set; }
     }
 

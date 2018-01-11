@@ -18,7 +18,7 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
 {
     public class Searcher
     {
-        private static Object thisLock = new Object();
+        //private static Object thisLock = new Object();
 
         public static IEnumerable<ClientFulltextSearchResultItem> Search(IList<ClientFulltextSearchRequestItem> requestItems, int top = 3)
         {
