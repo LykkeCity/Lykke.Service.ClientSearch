@@ -59,13 +59,11 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             IndexReader reader = DirectoryReader.Open(dir);
             IndexSearcher searcher = new IndexSearcher(reader);
 
-            char[] reservedChars = new char[] { '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/', ',' };
-
             StringBuilder sb = new StringBuilder();
             if (!String.IsNullOrWhiteSpace(name))
             {
                 string queryName = name.ToLower();
-                foreach (char chToReplace in reservedChars)
+                foreach (char chToReplace in FullTextSearchCommon.ReservedChars)
                 {
                     queryName = queryName.Replace(chToReplace, ' ');
                 }

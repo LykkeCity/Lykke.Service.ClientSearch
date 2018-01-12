@@ -20,9 +20,6 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
         private static FieldType searchFieldType;
         private static FieldType phraseSearchFieldType;
 
-        private static char[] reservedChars = new char[] { '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/', ',', '.', ';' };
-
-
         static Indexer()
         {
             storeFieldType = new FieldType();
@@ -164,7 +161,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
             string utf8FullNameAndDoB = HtmlEncoder.Default.Encode(fullNameAndDoB); // encode special symbols
             utf8FullNameAndDoB = utf8FullNameAndDoB.Replace("&#x", "#");
-            foreach (char chToReplace in reservedChars)
+            foreach (char chToReplace in FullTextSearchCommon.ReservedChars)
             {
                 utf8FullNameAndDoB = utf8FullNameAndDoB.Replace(chToReplace + "", String.Format("#{0:X}", Convert.ToInt32(chToReplace)));
             }

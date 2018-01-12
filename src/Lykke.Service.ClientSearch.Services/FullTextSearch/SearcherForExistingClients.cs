@@ -21,8 +21,6 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             IndexReader reader = DirectoryReader.Open(dir);
             IndexSearcher searcher = new IndexSearcher(reader);
 
-            char[] reservedChars = new char[] { '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/', ',', '.', ';' };
-
             name = name.Trim();
             string beginningToRemove = FullTextSearchCommon.JUMIO_NA + " ";
             if (name.StartsWith(beginningToRemove))
@@ -38,11 +36,10 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             string namePart = name.ToLower();
             namePart = HtmlEncoder.Default.Encode(namePart); // encode special symbols
             namePart = namePart.Replace("&#x", "#");
-            foreach (char chToReplace in reservedChars)
+            foreach (char chToReplace in FullTextSearchCommon.ReservedChars)
             {
                 namePart = namePart.Replace(chToReplace + "", String.Format("#{0:X}", Convert.ToInt32(chToReplace)));
             }
-
 
             StringBuilder sb = new StringBuilder();
             if (!String.IsNullOrWhiteSpace(name))
