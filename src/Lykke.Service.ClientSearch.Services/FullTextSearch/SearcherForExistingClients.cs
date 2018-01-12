@@ -16,6 +16,11 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
     {
         public static IList<string> Search(string name, DateTime dateOfBirth)
         {
+            if (String.IsNullOrWhiteSpace(name) || dateOfBirth == DateTime.MinValue)
+            {
+                return null;
+            }
+
             Lucene.Net.Store.Directory dir = Indexer.IndexDirectory;
 
             IndexReader reader = DirectoryReader.Open(dir);
@@ -50,7 +55,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
             if (sb.Length == 0)
             {
-                return new List<string>();
+                return null;
             }
 
             string queryStr = sb.ToString();

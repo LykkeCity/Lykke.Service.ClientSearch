@@ -38,9 +38,19 @@ namespace Lykke.Service.ClientSearch.Controllers
 
         [HttpPost]
         [Route("searchForExistingClient")]
-        public IEnumerable<string> SearchForExistingClient([FromBody] ExistingClientSearchRequest req)
+        public IActionResult SearchForExistingClient([FromBody] ExistingClientSearchRequest req)
         {
-            return SearcherForExistingClients.Search(req.Name, req.DateOfBirth);
+            string errMsg = "Valid client name and date of birth are required";
+            if (req == null)
+            {
+                return BadRequest(errMsg);
+            }
+            IList<string> result = SearcherForExistingClients.Search(req.Name, req.DateOfBirth);
+            if (result == null)
+            {
+                return BadRequest(errMsg);
+            }
+            return Json(result);
         }
 
     }
