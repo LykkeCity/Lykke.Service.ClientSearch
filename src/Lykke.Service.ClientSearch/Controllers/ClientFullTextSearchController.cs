@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Lykke.Service.ClientSearch.Core.FullTextSearch;
-using Lykke.Service.ClientSearch.FullTextSearch;
+using Lykke.Service.ClientSearch.Services.FullTextSearch;
 
 namespace Lykke.Service.ClientSearch.Controllers
 {

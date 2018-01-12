@@ -9,12 +9,11 @@ using Lykke.Service.ClientSearch.Core.FullTextSearch;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lykke.Service.ClientSearch.FullTextSearch
+namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
     public class Searcher
     {

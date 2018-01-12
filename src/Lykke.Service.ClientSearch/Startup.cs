@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
-using Lykke.Service.ClientSearch.FullTextSearch;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Lykke.JobTriggers.Extenstions;
@@ -23,6 +22,7 @@ using Lykke.Service.PersonalData.Contract;
 using Lykke.Service.PersonalData.Client;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using Lykke.Service.ClientSearch.Services.FullTextSearch;
 
 namespace Lykke.Service.ClientSearch
 {

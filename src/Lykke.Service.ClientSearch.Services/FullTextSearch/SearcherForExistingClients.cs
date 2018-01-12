@@ -5,18 +5,12 @@ using Lucene.Net.QueryParsers.Classic;
 using Lucene.Net.Search;
 using Lucene.Net.Search.Similarities;
 using Lucene.Net.Util;
-using Lykke.Service.ClientSearch.Core.FullTextSearch;
-using Lykke.Service.ClientSearch.Services.FullTextSearch;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Threading.Tasks;
 
-namespace Lykke.Service.ClientSearch.FullTextSearch
+namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
     public class SearcherForExistingClients
     {
@@ -29,6 +23,17 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
 
             char[] reservedChars = new char[] { '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/', ',', '.', ';' };
 
+            name = name.Trim();
+            string beginningToRemove = FullTextSearchCommon.JUMIO_NA + " ";
+            if (name.StartsWith(beginningToRemove))
+            {
+                name = name.Substring(beginningToRemove.Length);
+            }
+            string endingToRemove = " " + FullTextSearchCommon.JUMIO_NA;
+            if (name.EndsWith(endingToRemove))
+            {
+                name = name.Substring(0, name.Length - endingToRemove.Length);
+            }
 
             string namePart = name.ToLower();
             namePart = HtmlEncoder.Default.Encode(namePart); // encode special symbols

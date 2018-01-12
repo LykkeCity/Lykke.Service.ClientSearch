@@ -1,8 +1,8 @@
 ﻿using Common;
 using Common.Log;
 using Lykke.JobTriggers.Triggers.Attributes;
-using Lykke.Service.ClientSearch.FullTextSearch;
 using Lykke.Service.ClientSearch.Models;
+using Lykke.Service.ClientSearch.Services.FullTextSearch;
 using Lykke.Service.PersonalData.Contract;
 using Lykke.Service.PersonalData.Contract.Models;
 using System;

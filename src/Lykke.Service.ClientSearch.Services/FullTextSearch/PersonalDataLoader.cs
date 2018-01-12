@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Lykke.Service.ClientSearch.FullTextSearch
+namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
     public class PersonalDataLoader
     {

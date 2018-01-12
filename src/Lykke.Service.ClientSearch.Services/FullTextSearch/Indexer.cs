@@ -4,15 +4,12 @@ using Lucene.Net.Index;
 using Lucene.Net.Search.Similarities;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
-using Lykke.Service.ClientSearch.Services.FullTextSearch;
 using Lykke.Service.PersonalData.Contract.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Text.Encodings.Web;
 
-namespace Lykke.Service.ClientSearch.FullTextSearch
+namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
     public class Indexer
     {
@@ -24,7 +21,6 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
         private static FieldType phraseSearchFieldType;
 
         private static char[] reservedChars = new char[] { '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/', ',', '.', ';' };
-        private static string JUMIO_NA = "";
 
 
         static Indexer()
@@ -143,14 +139,19 @@ namespace Lykke.Service.ClientSearch.FullTextSearch
                 return null;
             }
 
-            List<string> parts = new List<string>();
-            if (pd.FirstName != JUMIO_NA && !String.IsNullOrWhiteSpace(pd.FirstName))
+            if (pd.FirstName!= null && pd.FirstName.StartsWith("NATALI"))
             {
-                parts.Add(pd.FirstName);
+
             }
-            if (pd.LastName != JUMIO_NA && !String.IsNullOrWhiteSpace(pd.LastName))
+
+            List<string> parts = new List<string>();
+            if (pd.FirstName != FullTextSearchCommon.JUMIO_NA && !String.IsNullOrWhiteSpace(pd.FirstName))
             {
-                parts.Add(pd.LastName);
+                parts.Add(pd.FirstName.Trim());
+            }
+            if (pd.LastName != FullTextSearchCommon.JUMIO_NA && !String.IsNullOrWhiteSpace(pd.LastName))
+            {
+                parts.Add(pd.LastName.Trim());
             }
             if (parts.Count == 0)
             {
