@@ -1,4 +1,5 @@
-﻿using Lucene.Net.Analysis.Standard;
+﻿using Common.Log;
+using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.Search.Similarities;
@@ -62,69 +63,57 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
                     foreach (IPersonalData pd in docsToIndex)
                     {
-                        //string indexedValue = "";
-
-                        bool somethingToIndex = false;
-
-                        string id = pd.Id;
-
-                        var doc = new Document();
-                        doc.Add(new Field("ClientId", id, storeFieldType));
-
-                        /*
-                        string nameToIndex = pd.FullName ?? "";
-                        if (!String.IsNullOrWhiteSpace(pd.FirstName) && !nameToIndex.Contains(pd.FirstName))
-                        {
-                            nameToIndex += " " + pd.FirstName;
-                        }
-                        if (!String.IsNullOrWhiteSpace(pd.LastName) && !nameToIndex.Contains(pd.LastName))
-                        {
-                            nameToIndex += " " + pd.LastName;
-                        }
-                        nameToIndex = nameToIndex.Trim();
-                        if (nameToIndex.Length > 0)
-                        {
-                            doc.Add(new Field("Name", nameToIndex, searchFieldType));
-                            somethingToIndex = true;
-                        }
-                        */
-
-                        string nameAndDoB = CreateNameAndDOBToIndex(pd);
-                        if (nameAndDoB != null)
-                        {
-                            doc.Add(new Field("ClientNameAndDayOfBirth", nameAndDoB, phraseSearchFieldType));
-                            //indexedValue = $"{nameAndDoB}";
-                            somethingToIndex = true;
-                        }
-
-
-                        if (somethingToIndex)
-                        {
-                            /*
-                            if (!String.IsNullOrWhiteSpace(indexedValue))
-                            {
-                                indexedValue += " " + id;
-                            }
-                            */
-                            writer.UpdateDocument(new Term("ClientId", id), doc, wAnalyzer);
-                        }
-                        else
+                        if (pd == null)
                         {
                             writer.DeleteDocuments(new Term("ClientId", id));
                         }
-                        /*
-                        if (!String.IsNullOrWhiteSpace(indexedValue))
+                        else
                         {
-                            indexedValues.Add(indexedValue);
+                            bool somethingToIndex = false;
+
+                            string id = pd.Id;
+
+                            var doc = new Document();
+                            doc.Add(new Field("ClientId", id, storeFieldType));
+
+                            /*
+                            string nameToIndex = pd.FullName ?? "";
+                            if (!String.IsNullOrWhiteSpace(pd.FirstName) && !nameToIndex.Contains(pd.FirstName))
+                            {
+                                nameToIndex += " " + pd.FirstName;
+                            }
+                            if (!String.IsNullOrWhiteSpace(pd.LastName) && !nameToIndex.Contains(pd.LastName))
+                            {
+                                nameToIndex += " " + pd.LastName;
+                            }
+                            nameToIndex = nameToIndex.Trim();
+                            if (nameToIndex.Length > 0)
+                            {
+                                doc.Add(new Field("Name", nameToIndex, searchFieldType));
+                                somethingToIndex = true;
+                            }
+                            */
+
+                            string nameAndDoB = CreateNameAndDOBToIndex(pd);
+                            if (nameAndDoB != null)
+                            {
+                                doc.Add(new Field("ClientNameAndDayOfBirth", nameAndDoB, phraseSearchFieldType));
+                                somethingToIndex = true;
+                            }
+
+
+                            if (somethingToIndex)
+                            {
+                                writer.UpdateDocument(new Term("ClientId", id), doc, wAnalyzer);
+                            }
+                            else
+                            {
+                                writer.DeleteDocuments(new Term("ClientId", id));
+                            }
                         }
-                        */
 
                         writer.Commit();
                     }
-
-
-
-                    //File.AppendAllLines("D:/Projects.Lykke/tmp/iiiii.htm", indexedValues);
                 }
             }
         }
@@ -169,9 +158,17 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             return utf8FullNameAndDoB;
         }
 
-        public static void IndexSingleDocument(IPersonalData docToIndex)
+        public static void IndexSingleDocument(string clientId, IPersonalData docToIndex, ILog log)
         {
             CreateIndex(new IPersonalData [] { docToIndex });
+            if (docToIndex == null)
+            {
+                log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocument), $"client {clientId} removed from index");
+            }
+            else
+            {
+                log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocument), $"client {clientId} reindexed");
+            }
         }
 
 

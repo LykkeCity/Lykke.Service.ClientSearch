@@ -31,7 +31,7 @@ namespace Lykke.Service.ClientSearch.Modules
                 IPersonalData docToIndex = await _personalDataService.GetAsync(req.ClientId);
                 if (docToIndex != null)
                 {
-                    Indexer.IndexSingleDocument(docToIndex);
+                    Indexer.IndexSingleDocument(req.ClientId, docToIndex, _log);
                 }
             }
             catch (Exception ex)
