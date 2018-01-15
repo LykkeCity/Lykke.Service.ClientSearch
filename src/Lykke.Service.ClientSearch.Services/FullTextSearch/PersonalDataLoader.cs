@@ -53,7 +53,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                 log.WriteInfoAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), "Personal data loading completed");
 
                 log.WriteInfoAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), "Index creation started");
-                Indexer.CreateIndex(allPersonalData);
+                Indexer.CreateIndex(allPersonalData, null);
                 log.WriteInfoAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), "Index creation completed");
 
                 indexCreated = true;

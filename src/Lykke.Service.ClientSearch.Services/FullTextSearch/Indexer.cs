@@ -48,7 +48,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             phraseSearchFieldType.Freeze();
         }
 
-        public static void CreateIndex(IEnumerable<IPersonalData> docsToIndex)
+        public static void CreateIndex(IEnumerable<IPersonalData> docsToIndex, IEnumerable<string> docsToDelete)
         {
 
             using (var wAnalyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48))
@@ -59,22 +59,14 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
                 using (var writer = new IndexWriter(IndexDirectory, config))
                 {
-                    //List<string> indexedValues = new List<string>();
-
-                    foreach (IPersonalData pd in docsToIndex)
+                    if (docsToIndex != null)
                     {
-                        if (pd == null)
-                        {
-                            writer.DeleteDocuments(new Term("ClientId", id));
-                        }
-                        else
+                        foreach (IPersonalData pd in docsToIndex)
                         {
                             bool somethingToIndex = false;
 
-                            string id = pd.Id;
-
                             var doc = new Document();
-                            doc.Add(new Field("ClientId", id, storeFieldType));
+                            doc.Add(new Field("ClientId", pd.Id, storeFieldType));
 
                             /*
                             string nameToIndex = pd.FullName ?? "";
@@ -101,19 +93,22 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                                 somethingToIndex = true;
                             }
 
-
                             if (somethingToIndex)
                             {
-                                writer.UpdateDocument(new Term("ClientId", id), doc, wAnalyzer);
-                            }
-                            else
-                            {
-                                writer.DeleteDocuments(new Term("ClientId", id));
+                                writer.UpdateDocument(new Term("ClientId", pd.Id), doc, wAnalyzer);
                             }
                         }
-
-                        writer.Commit();
                     }
+
+                    if (docsToDelete != null)
+                    {
+                        foreach (string clientId in docsToDelete)
+                        {
+                            writer.DeleteDocuments(new Term("ClientId", clientId));
+                        }
+                    }
+
+                    writer.Commit();
                 }
             }
         }
@@ -123,11 +118,6 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             if (!pd.DateOfBirth.HasValue)
             {
                 return null;
-            }
-
-            if (pd.FirstName!= null && pd.FirstName.StartsWith("NATALI"))
-            {
-
             }
 
             List<string> parts = new List<string>();
@@ -160,13 +150,14 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
         public static void IndexSingleDocument(string clientId, IPersonalData docToIndex, ILog log)
         {
-            CreateIndex(new IPersonalData [] { docToIndex });
             if (docToIndex == null)
             {
+                CreateIndex(null, new string[] { clientId });
                 log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocument), $"client {clientId} removed from index");
             }
             else
             {
+                CreateIndex(new IPersonalData[] { docToIndex }, null);
                 log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocument), $"client {clientId} reindexed");
             }
         }
