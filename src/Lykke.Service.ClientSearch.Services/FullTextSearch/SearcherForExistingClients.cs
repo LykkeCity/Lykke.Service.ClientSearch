@@ -84,6 +84,8 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
         }
 
+
+
     }
 
 }

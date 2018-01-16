@@ -15,8 +15,4 @@
     <ProjectReference Include="..\Lykke.Service.ClientSearch.Core\Lykke.Service.ClientSearch.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="PersonalData\" />
-  </ItemGroup>
-
 </Project>

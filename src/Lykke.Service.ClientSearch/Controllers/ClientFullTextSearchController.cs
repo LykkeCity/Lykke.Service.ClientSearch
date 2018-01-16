@@ -53,5 +53,18 @@ namespace Lykke.Service.ClientSearch.Controllers
             return Json(result);
         }
 
+        [HttpGet]
+        [Route("showClientData")]
+        public IActionResult showClientData([FromQuery] string clientId)
+        {
+            string errMsg = "Valid client id is required";
+            if (String.IsNullOrWhiteSpace(clientId))
+            {
+                return BadRequest(errMsg);
+            }
+            IndexedData result = IndexInfo.GetIndexedData(clientId);
+            return Json(result);
+        }
+
     }
 }
