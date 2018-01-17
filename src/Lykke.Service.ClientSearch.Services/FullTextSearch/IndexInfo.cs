@@ -41,7 +41,8 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
                     result = new IndexedData();
                     result.ClientId = doc.GetField("ClientId").GetStringValue();
-                    result.ClientNameAndDayOfBirth = doc.GetField("ClientNameAndDayOfBirth").GetStringValue();
+                    string val = doc.GetField("ClientNameAndDayOfBirth").GetStringValue();
+                    result.ClientNameAndDayOfBirth = FullTextSearchCommon.DecodeFromIndex(val);
                     return result;
                 }
             }

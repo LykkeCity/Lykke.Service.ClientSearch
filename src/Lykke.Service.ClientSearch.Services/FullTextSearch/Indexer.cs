@@ -8,6 +8,7 @@ using Lucene.Net.Util;
 using Lykke.Service.PersonalData.Contract.Models;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text.Encodings.Web;
 
 namespace Lykke.Service.ClientSearch.Services.FullTextSearch
@@ -137,16 +138,8 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             }
 
             string firstAndLastName = String.Join(" ", parts);
-
             string fullNameAndDoB = $"{firstAndLastName} {pd.DateOfBirth.Value.ToString(FullTextSearchCommon.DateTimeFormat)}";
-
-            string utf8FullNameAndDoB = HtmlEncoder.Default.Encode(fullNameAndDoB); // encode special symbols
-            utf8FullNameAndDoB = utf8FullNameAndDoB.Replace("&#x", "#");
-            foreach (char chToReplace in FullTextSearchCommon.ReservedChars)
-            {
-                utf8FullNameAndDoB = utf8FullNameAndDoB.Replace(chToReplace + "", String.Format("#{0:X}", Convert.ToInt32(chToReplace)));
-            }
-
+            string utf8FullNameAndDoB = FullTextSearchCommon.EncodeForIndex(fullNameAndDoB);
             return utf8FullNameAndDoB;
         }
 

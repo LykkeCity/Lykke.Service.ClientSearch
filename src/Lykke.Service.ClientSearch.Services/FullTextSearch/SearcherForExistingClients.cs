@@ -7,6 +7,7 @@ using Lucene.Net.Search.Similarities;
 using Lucene.Net.Util;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Text.Encodings.Web;
 
@@ -38,18 +39,12 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                 name = name.Substring(0, name.Length - endingToRemove.Length);
             }
 
-            string namePart = name.ToLower();
-            namePart = HtmlEncoder.Default.Encode(namePart); // encode special symbols
-            namePart = namePart.Replace("&#x", "#");
-            foreach (char chToReplace in FullTextSearchCommon.ReservedChars)
-            {
-                namePart = namePart.Replace(chToReplace + "", String.Format("#{0:X}", Convert.ToInt32(chToReplace)));
-            }
+            name = FullTextSearchCommon.EncodeForIndex(name.ToLower());
 
             StringBuilder sb = new StringBuilder();
             if (!String.IsNullOrWhiteSpace(name))
             {
-                string phrase = $"{namePart} {dateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
+                string phrase = $"{name} {dateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
                 sb.Append($"ClientNameAndDayOfBirth: \"{phrase}\"");
             }
 
@@ -59,7 +54,6 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             }
 
             string queryStr = sb.ToString();
-
 
             using (var rAnalyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48))
             {
