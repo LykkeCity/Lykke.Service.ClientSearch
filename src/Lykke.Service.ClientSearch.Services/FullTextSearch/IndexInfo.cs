@@ -8,6 +8,7 @@ using Lucene.Net.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Encodings.Web;
 
 namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {

@@ -50,6 +50,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
         public static void CreateIndex(IEnumerable<IPersonalData> docsToIndex, IEnumerable<string> docsToDelete)
         {
+            List<string> indexedFields = new List<string>();
 
             using (var wAnalyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48))
             {
@@ -89,6 +90,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                             string nameAndDoB = CreateNameAndDOBToIndex(pd);
                             if (nameAndDoB != null)
                             {
+                                indexedFields.Add(nameAndDoB);
                                 doc.Add(new Field("ClientNameAndDayOfBirth", nameAndDoB, phraseSearchFieldType));
                                 somethingToIndex = true;
                             }

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Lykke.Service.ClientSearch.Core.FullTextSearch;
 using Lykke.Service.ClientSearch.Services.FullTextSearch;
+using JetBrains.Annotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Lykke.Service.ClientSearch.Controllers
 {
@@ -54,8 +56,8 @@ namespace Lykke.Service.ClientSearch.Controllers
         }
 
         [HttpGet]
-        [Route("showClientData")]
-        public IActionResult showClientData([FromQuery] string clientId)
+        [Route("showClientData/{clientId}")]
+        public IActionResult showClientData(string clientId)
         {
             string errMsg = "Valid client id is required";
             if (String.IsNullOrWhiteSpace(clientId))
