@@ -143,7 +143,7 @@ namespace Lykke.Service.ClientSearch
                 QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
             }, aggregateLogger);
 
-            var dbLogConnectionStringManager = settings.Nested(x => x.ClientSearchService.ClientPersonalInfoConnString);
+            var dbLogConnectionStringManager = settings.Nested(x => x.ClientSearchService.LogsConnString);
             var dbLogConnectionString = dbLogConnectionStringManager.CurrentValue;
 
             // Creating azure storage logger, which logs own messages to concole log

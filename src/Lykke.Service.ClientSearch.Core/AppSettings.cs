@@ -29,6 +29,7 @@ namespace Lykke.Service.ClientSearch.Core
     public class ClientSearchServiceSettings
     {
         public string ClientPersonalInfoConnString { get; set; }
+        public string LogsConnString { get; set; }
     }
 
 
