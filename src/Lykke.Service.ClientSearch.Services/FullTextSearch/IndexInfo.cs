@@ -14,6 +14,8 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
     public class IndexInfo
     {
+        private const int _maxHitCount = 1000000;
+
         public static IndexedData GetIndexedData(string clientId)
         {
             IndexedData result;
@@ -27,7 +29,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             {
                 TermQuery q = new TermQuery(new Term("ClientId", clientId));
 
-                var collector = TopScoreDocCollector.Create(1000000, true);
+                var collector = TopScoreDocCollector.Create(_maxHitCount, true);
                 searcher.Search(q, collector);
                 searcher.Similarity = new DefaultSimilarity();
 

@@ -15,6 +15,8 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
     public class SearcherForExistingClients
     {
+        private const int _maxHitCount = 1000000;
+
         public static IList<string> Search(string name, DateTime dateOfBirth)
         {
             if (String.IsNullOrWhiteSpace(name) || dateOfBirth == DateTime.MinValue)
@@ -41,26 +43,15 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
             name = FullTextSearchCommon.EncodeForIndex(name.ToLower());
 
-            StringBuilder sb = new StringBuilder();
-            if (!String.IsNullOrWhiteSpace(name))
-            {
-                string phrase = $"{name} {dateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
-                sb.Append($"ClientNameAndDayOfBirth: \"{phrase}\"");
-            }
-
-            if (sb.Length == 0)
-            {
-                return null;
-            }
-
-            string queryStr = sb.ToString();
+            string phrase = $"{name} {dateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
+            string queryStr = $"ClientNameAndDayOfBirth: \"{phrase}\"";
 
             using (var rAnalyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48))
             {
                 QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "ClientNameAndDayOfBirth", rAnalyzer);
                 Query q = parser.Parse(queryStr);
 
-                var collector = TopScoreDocCollector.Create(1000000, true);
+                var collector = TopScoreDocCollector.Create(_maxHitCount, true);
                 searcher.Search(q, collector);
                 searcher.Similarity = new DefaultSimilarity();
 

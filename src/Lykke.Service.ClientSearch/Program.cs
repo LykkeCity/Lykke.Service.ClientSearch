@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 
 namespace Lykke.Service.ClientSearch
 {
-    public static class Program
+    internal static class Program
     {
+        internal static string EnvInfo => Environment.GetEnvironmentVariable("ENV_INFO");
+
         static CancellationTokenSource webHostCancellationTokenSource = new CancellationTokenSource();
         static IWebHost webHost = null;
         static TriggerHost triggerHost = null;

@@ -10,11 +10,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Lykke.Service.ClientSearch.Controllers
 {
-    /// <summary>
-    /// Controller for personal data
-    /// </summary>
-    //[Authorize]
-
     [AllowAnonymous]
     [Route("api/[controller]")]
     public class ClientFullTextSearchController : Controller
@@ -38,6 +33,9 @@ namespace Lykke.Service.ClientSearch.Controllers
         }
         */
 
+        /// <summary>
+        /// Returns client id as a result of search by name and date of birth 
+        /// </summary>
         [HttpPost]
         [Route("searchForExistingClient")]
         public IActionResult SearchForExistingClient([FromBody] ExistingClientSearchRequest req)
@@ -55,6 +53,9 @@ namespace Lykke.Service.ClientSearch.Controllers
             return Json(result);
         }
 
+        /// <summary>
+        /// Returns indexed data for a client
+        /// </summary>
         [HttpGet]
         [Route("showClientData/{clientId}")]
         public IActionResult showClientData(string clientId)
