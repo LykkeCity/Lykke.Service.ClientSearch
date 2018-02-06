@@ -5,6 +5,7 @@ using Lykke.JobTriggers.Extenstions;
 using Lykke.Service.ClientSearch.Core;
 using Lykke.Service.ClientSearch.Core.Services;
 using Lykke.Service.ClientSearch.Services;
+using Lykke.Service.ClientSearch.Services.FullTextSearch;
 using Lykke.Service.PersonalData.Client;
 using Lykke.Service.PersonalData.Contract;
 using Lykke.Service.PersonalData.Settings;
@@ -19,12 +20,15 @@ namespace Lykke.Service.ClientSearch.Modules
         private readonly IReloadingManager<PersonalDataServiceClientSettings> _pdClientSettings;
         private readonly ILog _log;
         private readonly IServiceCollection _services;
+        private readonly IContainer _applicationContainer;
 
         public ServiceModule(
+            IContainer applicationContainer,
             IReloadingManager<ClientSearchServiceSettings> settings,
             IReloadingManager<PersonalDataServiceClientSettings> pdClientSettings,
             ILog log)
         {
+            _applicationContainer = applicationContainer;
             _settings = settings;
             _pdClientSettings = pdClientSettings;
             _log = log;
@@ -48,12 +52,21 @@ namespace Lykke.Service.ClientSearch.Modules
             builder.RegisterType<ShutdownManager>()
                 .As<IShutdownManager>();
 
+
+
+            builder.RegisterInstance<ITriggerManager>(new TriggerManager(new AutofacServiceProvider(_applicationContainer)));
             builder.RegisterInstance<IPersonalDataService>(new PersonalDataService(_pdClientSettings.CurrentValue, _log));
+
+            builder.RegisterType<Indexer>().SingleInstance();
+            builder.RegisterType<SearcherForExistingClients>();
+            builder.RegisterType<IndexInfo>();
+
 
             builder.AddTriggers(pool =>
             {
                 pool.AddDefaultConnection(_settings.CurrentValue.ClientPersonalInfoConnString);
             });
+
 
             builder.Populate(_services);
         }

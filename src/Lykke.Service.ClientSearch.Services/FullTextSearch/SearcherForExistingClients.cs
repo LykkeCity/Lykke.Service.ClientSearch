@@ -13,18 +13,24 @@ using System.Text.Encodings.Web;
 
 namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
-    public static class SearcherForExistingClients
+    public class SearcherForExistingClients
     {
         private const int _maxHitCount = 1000000;
 
-        public static IList<string> Search(string name, DateTime dateOfBirth)
+        private readonly Indexer _indexer;
+        public SearcherForExistingClients(Indexer indexer)
+        {
+            _indexer = indexer;
+        }
+
+        public IList<string> Search(string name, DateTime dateOfBirth)
         {
             if (String.IsNullOrWhiteSpace(name) || dateOfBirth == DateTime.MinValue)
             {
                 return null;
             }
 
-            Lucene.Net.Store.Directory dir = Indexer.IndexDirectory;
+            Lucene.Net.Store.Directory dir = _indexer.IndexDirectory;
 
             using (IndexReader reader = DirectoryReader.Open(dir))
             {

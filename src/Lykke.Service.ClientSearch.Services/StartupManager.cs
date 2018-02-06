@@ -15,25 +15,20 @@ namespace Lykke.Service.ClientSearch.Services
 
     public class StartupManager : IStartupManager
     {
-        private readonly IPersonalDataService _personalDataService;
-        private readonly ILog _log;
+        private readonly Indexer _indexer;
 
-        public StartupManager(
-            IPersonalDataService personalDataService,
-            ILog log)
+        public StartupManager(Indexer indexer)
         {
-            _personalDataService = personalDataService;
-            _log = log;
+            _indexer = indexer;
         }
 
         public async Task StartAsync()
         {
             // TODO: Implement your startup logic here. Good idea is to log every step
+            _indexer.Initialize();
 
-            Task task = Task.Factory.StartNew(async () => {
-                await PersonalDataLoader.LoadAllPersonalDataForIndexing(_personalDataService, _log);
-            });
             await Task.CompletedTask;
         }
+
     }
 }

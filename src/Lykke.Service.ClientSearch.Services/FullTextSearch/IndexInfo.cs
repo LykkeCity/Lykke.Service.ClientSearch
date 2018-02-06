@@ -12,15 +12,21 @@ using System.Text.Encodings.Web;
 
 namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
-    public static class IndexInfo
+    public class IndexInfo
     {
         private const int _maxHitCount = 1000000;
 
-        public static IndexedData GetIndexedData(string clientId)
+        private readonly Indexer _indexer;
+        public IndexInfo(Indexer indexer)
+        {
+            _indexer = indexer;
+        }
+
+        public IndexedData GetIndexedData(string clientId)
         {
             IndexedData result;
 
-            Lucene.Net.Store.Directory dir = Indexer.IndexDirectory;
+            Lucene.Net.Store.Directory dir = _indexer.IndexDirectory;
 
             using (IndexReader reader = DirectoryReader.Open(dir))
             {
