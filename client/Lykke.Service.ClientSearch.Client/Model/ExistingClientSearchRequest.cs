@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Lykke.Service.ClientSearch.Client.Domain
+namespace Lykke.Service.ClientSearch.Client.Model
 {
     public class ExistingClientSearchRequest
     {

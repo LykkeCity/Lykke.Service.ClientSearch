@@ -1,4 +1,4 @@
-﻿using Lykke.Service.ClientSearch.Client.Domain;
+﻿using Lykke.Service.ClientSearch.Client.Model;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
