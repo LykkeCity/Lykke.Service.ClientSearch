@@ -5,6 +5,8 @@ using Lucene.Net.Index;
 using Lucene.Net.Search.Similarities;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
+using Lykke.Service.ClientSearch.Core.Services;
+using Lykke.Service.PersonalData.Contract;
 using Lykke.Service.PersonalData.Contract.Models;
 using System;
 using System.Collections.Generic;
@@ -12,16 +14,41 @@ using System.Threading.Tasks;
 
 namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
-    public static class Indexer
+    public partial class Indexer
     {
-        //public static Lucene.Net.Store.Directory IndexDirectory = FSDirectory.Open(new DirectoryInfo("/Projects.Lykke/index.dir"));
-        public static Lucene.Net.Store.Directory IndexDirectory = new RAMDirectory();
+        //public Lucene.Net.Store.Directory IndexDirectory = FSDirectory.Open(new DirectoryInfo("/Projects.Lykke/index.dir"));
+        public Lucene.Net.Store.Directory IndexDirectory { get; } = new RAMDirectory();
 
-        private static FieldType storeFieldType;
-        private static FieldType searchFieldType;
-        private static FieldType phraseSearchFieldType;
+        private FieldType storeFieldType;
+        private FieldType searchFieldType;
+        private FieldType phraseSearchFieldType;
 
-        static Indexer()
+        private readonly ITriggerManager _triggerManager;
+        private readonly IPersonalDataService _personalDataService;
+        private readonly ILog _log;
+
+        public Indexer(
+            ITriggerManager triggerManager,
+            IPersonalDataService personalDataService,
+            ILog log
+            )
+        {
+            _triggerManager = triggerManager;
+            _personalDataService = personalDataService;
+            _log = log;
+
+            InitializeIndexFieldTypes();
+        }
+
+        public void Initialize()
+        {
+            Task task = Task.Factory.StartNew(async () =>
+            {
+                await LoadAllPersonalDataForIndexing();
+            });
+        }
+
+        private void InitializeIndexFieldTypes()
         {
             storeFieldType = new FieldType();
             storeFieldType.IndexOptions = IndexOptions.DOCS_ONLY;
@@ -48,7 +75,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             phraseSearchFieldType.Freeze();
         }
 
-        public static void CreateIndex(IEnumerable<IPersonalData> docsToIndex, IEnumerable<string> docsToDelete)
+        private void CreateIndex(IEnumerable<IPersonalData> docsToIndex, IEnumerable<string> docsToDelete)
         {
             List<string> indexedFields = new List<string>();
 
@@ -97,7 +124,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             }
         }
 
-        public static string CreateNameAndDOBToIndex(IPersonalData pd)
+        private string CreateNameAndDOBToIndex(IPersonalData pd)
         {
             if (!pd.DateOfBirth.HasValue)
             {
@@ -124,17 +151,17 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             return utf8FullNameAndDoB;
         }
 
-        public static async Task IndexSingleDocument(string clientId, IPersonalData docToIndex, ILog log)
+        public async Task IndexSingleDocument(string clientId, IPersonalData docToIndex)
         {
             if (docToIndex == null)
             {
                 CreateIndex(null, new string[] { clientId });
-                await log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocument), $"client {clientId} removed from index");
+                await _log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocument), $"client {clientId} removed from index");
             }
             else
             {
                 CreateIndex(new IPersonalData[] { docToIndex }, null);
-                await log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocument), $"client {clientId} reindexed");
+                await _log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocument), $"client {clientId} reindexed");
             }
         }
 

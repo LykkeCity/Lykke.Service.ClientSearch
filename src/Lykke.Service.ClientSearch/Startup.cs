@@ -7,16 +7,15 @@ using AzureStorage.Tables;
 using Common.Log;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
+using Lykke.JobTriggers.Triggers;
 using Lykke.Logs;
 using Lykke.Service.ClientSearch.Core;
 using Lykke.Service.ClientSearch.Core.Services;
 using Lykke.Service.ClientSearch.Modules;
-using Lykke.Service.ClientSearch.Services.FullTextSearch;
 using Lykke.SettingsReader;
 using Lykke.SlackNotification.AzureQueue;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,6 +27,7 @@ namespace Lykke.Service.ClientSearch
         private IContainer ApplicationContainer { get; set; }
         private IConfigurationRoot Configuration { get; }
         private ILog Log { get; set; }
+
 
         public Startup(IHostingEnvironment env)
         {
@@ -60,7 +60,7 @@ namespace Lykke.Service.ClientSearch
 
                 Log = CreateLogWithSlack(services, appSettings);
 
-                builder.RegisterModule(new ServiceModule(appSettings.Nested(x => x.ClientSearchService), appSettings.Nested(x => x.PersonalDataServiceClient), Log));
+                builder.RegisterModule(new ServiceModule(ApplicationContainer, appSettings.Nested(x => x.ClientSearchService), appSettings.Nested(x => x.PersonalDataServiceClient), Log));
                 builder.Populate(services);
                 ApplicationContainer = builder.Build();
 
@@ -81,20 +81,6 @@ namespace Lykke.Service.ClientSearch
                 {
                     app.UseDeveloperExceptionPage();
                 }
-
-                app.Use((context, next) =>
-                {
-                    if (!PersonalDataLoader.indexCreated)
-                    {
-                        using (var writer = new StreamWriter(context.Response.Body))
-                        {
-                            context.Response.StatusCode = 503;
-                            return context.Response.WriteAsync("Search index is not ready yet");
-                        }
-                    }
-
-                    return next();
-                });
 
                 app.UseLykkeForwardedHeaders();
                 app.UseLykkeMiddleware("ClientSearch", ex => new { Message = "Technical problem" });

@@ -14,13 +14,19 @@ namespace Lykke.Service.ClientSearch.Modules
 {
     class QueueMessageHandler
     {
-        private readonly ILog _log;
+        private readonly Indexer _indexer;
         private readonly IPersonalDataService _personalDataService;
+        private readonly ILog _log;
 
-        public QueueMessageHandler(ILog log, IPersonalDataService personalDataService)
+        public QueueMessageHandler(
+            Indexer indexer,
+            IPersonalDataService personalDataService,
+            ILog log
+            )
         {
-            _log = log;
+            _indexer = indexer;
             _personalDataService = personalDataService;
+            _log = log;
         }
 
         [QueueTrigger("client-search-reindex-documents", 1000)]
@@ -31,7 +37,7 @@ namespace Lykke.Service.ClientSearch.Modules
                 IPersonalData docToIndex = await _personalDataService.GetAsync(req.ClientId);
                 if (docToIndex != null)
                 {
-                    Indexer.IndexSingleDocument(req.ClientId, docToIndex, _log);
+                    await _indexer.IndexSingleDocument(req.ClientId, docToIndex);
                 }
             }
             catch (Exception ex)

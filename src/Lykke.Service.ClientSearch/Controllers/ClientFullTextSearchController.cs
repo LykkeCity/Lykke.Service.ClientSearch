@@ -14,11 +14,25 @@ namespace Lykke.Service.ClientSearch.Controllers
     [Route("api/[controller]")]
     public class ClientFullTextSearchController : Controller
     {
+        private const int _serviceNotReadyCode = 503;
+        private const string _serviceNotReadyMsg = "Search index is not ready yet";
+
+        private readonly Indexer _indexer;
+        private readonly SearcherForExistingClients _searcherForExistingClients;
+        private readonly IndexInfo _indexInfo;
+
         /// <summary>
         /// Controller to fulltext search for clients
         /// </summary>
-        public ClientFullTextSearchController()
+        public ClientFullTextSearchController(
+            Indexer indexer,
+            SearcherForExistingClients searcherForExistingClients,
+            IndexInfo indexInfo
+            )
         {
+            _indexer = indexer;
+            _searcherForExistingClients = searcherForExistingClients;
+            _indexInfo = indexInfo;
         }
 
         /// <summary>
@@ -33,7 +47,12 @@ namespace Lykke.Service.ClientSearch.Controllers
             {
                 return BadRequest(errMsg);
             }
-            IList<string> result = SearcherForExistingClients.Search(req.Name, req.DateOfBirth);
+            if (!_indexer.IndexCreated)
+            {
+                return StatusCode(_serviceNotReadyCode, _serviceNotReadyMsg);
+            }
+
+            IList<string> result = _searcherForExistingClients.Search(req.Name, req.DateOfBirth);
             if (result == null)
             {
                 return BadRequest(errMsg);
@@ -53,7 +72,12 @@ namespace Lykke.Service.ClientSearch.Controllers
             {
                 return BadRequest(errMsg);
             }
-            IndexedData result = IndexInfo.GetIndexedData(clientId);
+            if (!_indexer.IndexCreated)
+            {
+                return StatusCode(_serviceNotReadyCode, _serviceNotReadyMsg);
+            }
+
+            IndexedData result = _indexInfo.GetIndexedData(clientId);
             return Json(result);
         }
 
