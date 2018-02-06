@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -10,10 +11,12 @@ using Lykke.Logs;
 using Lykke.Service.ClientSearch.Core;
 using Lykke.Service.ClientSearch.Core.Services;
 using Lykke.Service.ClientSearch.Modules;
+using Lykke.Service.ClientSearch.Services.FullTextSearch;
 using Lykke.SettingsReader;
 using Lykke.SlackNotification.AzureQueue;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -78,6 +81,20 @@ namespace Lykke.Service.ClientSearch
                 {
                     app.UseDeveloperExceptionPage();
                 }
+
+                app.Use((context, next) =>
+                {
+                    if (!PersonalDataLoader.indexCreated)
+                    {
+                        using (var writer = new StreamWriter(context.Response.Body))
+                        {
+                            context.Response.StatusCode = 503;
+                            return context.Response.WriteAsync("Search index is not ready yet");
+                        }
+                    }
+
+                    return next();
+                });
 
                 app.UseLykkeForwardedHeaders();
                 app.UseLykkeMiddleware("ClientSearch", ex => new { Message = "Technical problem" });

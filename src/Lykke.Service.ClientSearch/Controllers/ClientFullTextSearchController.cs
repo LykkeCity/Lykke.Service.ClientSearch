@@ -21,18 +21,6 @@ namespace Lykke.Service.ClientSearch.Controllers
         {
         }
 
-        /*
-        /// <summary>
-        /// fulltext search for clients
-        /// </summary>
-        [HttpPost]
-        [Route("search")]
-        public IEnumerable<ClientFulltextSearchResultItem> Search([FromBody] IList<ClientFulltextSearchRequestItem> requestItems)
-        {
-            return Searcher.Search(requestItems);
-        }
-        */
-
         /// <summary>
         /// Returns client id as a result of search by name and date of birth 
         /// </summary>

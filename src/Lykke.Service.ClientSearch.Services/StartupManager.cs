@@ -30,8 +30,8 @@ namespace Lykke.Service.ClientSearch.Services
         {
             // TODO: Implement your startup logic here. Good idea is to log every step
 
-            Task task = Task.Factory.StartNew(() => {
-                PersonalDataLoader.LoadAllPersonalDataForIndexing(_personalDataService, _log);
+            Task task = Task.Factory.StartNew(async () => {
+                await PersonalDataLoader.LoadAllPersonalDataForIndexing(_personalDataService, _log);
             });
             await Task.CompletedTask;
         }
