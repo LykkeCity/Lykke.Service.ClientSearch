@@ -6,7 +6,7 @@ using Common;
 using Common.Log;
 using Flurl.Http;
 using System.Net.Http;
-using Lykke.Service.ClientSearch.Client.Domain;
+using Lykke.Service.ClientSearch.Client.Model;
 
 namespace Lykke.Service.ClientSearch.Client
 {
