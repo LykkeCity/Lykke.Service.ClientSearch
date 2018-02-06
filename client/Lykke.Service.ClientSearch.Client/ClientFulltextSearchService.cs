@@ -21,11 +21,6 @@ namespace Lykke.Service.ClientSearch.Client
             _log = log;
         }
 
-        public async Task<IEnumerable<ClientFulltextSearchResultItem>> FindMatchingClients(IEnumerable<ClientFulltextSearchRequestItem> dataToFullTextSearch)
-        {
-            return await PostDataAsync<IEnumerable<ClientFulltextSearchResultItem>>(dataToFullTextSearch, "search");
-        }
-
         public async Task<IEnumerable<string>> FindExistingClients(ExistingClientSearchRequest req)
         {
             return await PostDataAsync<IEnumerable<string>>(req, "searchForExistingClient");

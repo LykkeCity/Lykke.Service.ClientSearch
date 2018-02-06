@@ -1,21 +1,32 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
+using Lykke.JobTriggers.Extenstions;
 using Lykke.Service.ClientSearch.Core;
+using Lykke.Service.ClientSearch.Core.Services;
+using Lykke.Service.ClientSearch.Services;
+using Lykke.Service.PersonalData.Client;
+using Lykke.Service.PersonalData.Contract;
+using Lykke.Service.PersonalData.Settings;
+using Lykke.SettingsReader;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lykke.Service.ClientSearch.Modules
 {
-    public class ServiceModule : Module
+    internal class ServiceModule : Module
     {
-        //private readonly ClientSearchSettings _settings;
+        private readonly IReloadingManager<ClientSearchServiceSettings> _settings;
+        private readonly IReloadingManager<PersonalDataServiceClientSettings> _pdClientSettings;
         private readonly ILog _log;
-        // NOTE: you can remove it if you don't need to use IServiceCollection extensions to register service specific dependencies
         private readonly IServiceCollection _services;
 
-        public ServiceModule(/*ClientSearchSettings settings, */ILog log)
+        public ServiceModule(
+            IReloadingManager<ClientSearchServiceSettings> settings,
+            IReloadingManager<PersonalDataServiceClientSettings> pdClientSettings,
+            ILog log)
         {
-            //_settings = settings;
+            _settings = settings;
+            _pdClientSettings = pdClientSettings;
             _log = log;
 
             _services = new ServiceCollection();
@@ -27,7 +38,22 @@ namespace Lykke.Service.ClientSearch.Modules
                 .As<ILog>()
                 .SingleInstance();
 
-            // TODO: Add your dependencies here
+            builder.RegisterType<HealthService>()
+                .As<IHealthService>()
+                .SingleInstance();
+
+            builder.RegisterType<StartupManager>()
+                .As<IStartupManager>();
+
+            builder.RegisterType<ShutdownManager>()
+                .As<IShutdownManager>();
+
+            builder.RegisterInstance<IPersonalDataService>(new PersonalDataService(_pdClientSettings.CurrentValue, _log));
+
+            builder.AddTriggers(pool =>
+            {
+                pool.AddDefaultConnection(_settings.CurrentValue.ClientPersonalInfoConnString);
+            });
 
             builder.Populate(_services);
         }

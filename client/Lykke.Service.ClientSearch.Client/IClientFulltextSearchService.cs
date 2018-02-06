@@ -6,7 +6,10 @@ namespace Lykke.Service.ClientSearch.Client
 {
     public interface IClientFulltextSearchService
     {
-        Task<IEnumerable<ClientFulltextSearchResultItem>> FindMatchingClients(IEnumerable<ClientFulltextSearchRequestItem> dataToFullTextSearch);
+        /// <summary>
+        /// Searches for existng clients by fisrt name and last name and date of birth
+        /// </summary>
+        /// <returns>Collection of client ids</returns>
         Task<IEnumerable<string>> FindExistingClients(ExistingClientSearchRequest req);
     }
 }

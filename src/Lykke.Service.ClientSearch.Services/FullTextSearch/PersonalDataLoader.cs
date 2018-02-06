@@ -5,19 +5,20 @@ using Lykke.Service.PersonalData.Contract.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
-    public class PersonalDataLoader
+    public static class PersonalDataLoader
     {
         public static volatile bool indexCreated = false;
         private static DateTimeOffset lastTimeStamp = DateTimeOffset.MinValue;
 
-        public static void LoadAllPersonalDataForIndexing(IPersonalDataService personalDataService, ILog log)
+        public static async Task LoadAllPersonalDataForIndexing(IPersonalDataService personalDataService, ILog log)
         {
             try
             {
-                log.WriteInfoAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), "Personal data loading started");
+                await log.WriteInfoAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), "Personal data loading started");
                 List<IPersonalData> allPersonalData = new List<IPersonalData>();
 
                 string nextPage = null;
@@ -50,17 +51,17 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                     }
                 }
 
-                log.WriteInfoAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), "Personal data loading completed");
+                await log.WriteInfoAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), "Personal data loading completed");
 
-                log.WriteInfoAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), "Index creation started");
+                await log.WriteInfoAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), "Index creation started");
                 Indexer.CreateIndex(allPersonalData, null);
-                log.WriteInfoAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), "Index creation completed");
+                await log.WriteInfoAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), "Index creation completed");
 
                 indexCreated = true;
             }
             catch (Exception ex)
             {
-                log.WriteErrorAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), ex);
+                await log.WriteErrorAsync(nameof(PersonalDataLoader), nameof(LoadAllPersonalDataForIndexing), ex);
             }
         }
     }

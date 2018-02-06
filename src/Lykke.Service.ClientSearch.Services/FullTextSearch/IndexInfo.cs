@@ -12,38 +12,39 @@ using System.Text.Encodings.Web;
 
 namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
-    public class IndexInfo
+    public static class IndexInfo
     {
+        private const int _maxHitCount = 1000000;
+
         public static IndexedData GetIndexedData(string clientId)
         {
             IndexedData result;
 
             Lucene.Net.Store.Directory dir = Indexer.IndexDirectory;
 
-            IndexReader reader = DirectoryReader.Open(dir);
-            IndexSearcher searcher = new IndexSearcher(reader);
-
-            using (var rAnalyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48))
+            using (IndexReader reader = DirectoryReader.Open(dir))
             {
-                TermQuery q = new TermQuery(new Term("ClientId", clientId));
+                IndexSearcher searcher = new IndexSearcher(reader);
 
-                var collector = TopScoreDocCollector.Create(1000000, true);
-                searcher.Search(q, collector);
-                searcher.Similarity = new DefaultSimilarity();
-
-                List<string> matchingResults = new List<string>();
-
-                TopDocs topDocs = collector.GetTopDocs(0, collector.TotalHits);
-                foreach (ScoreDoc scoreDoc in topDocs.ScoreDocs)
+                using (var rAnalyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48))
                 {
-                    Document doc = searcher.Doc(scoreDoc.Doc);
-                    matchingResults.Add(doc.GetField("ClientId").GetStringValue());
+                    TermQuery q = new TermQuery(new Term("ClientId", clientId));
 
-                    result = new IndexedData();
-                    result.ClientId = doc.GetField("ClientId").GetStringValue();
-                    string val = doc.GetField("ClientNameAndDayOfBirth").GetStringValue();
-                    result.ClientNameAndDayOfBirth = FullTextSearchCommon.DecodeFromIndex(val);
-                    return result;
+                    var collector = TopScoreDocCollector.Create(_maxHitCount, true);
+                    searcher.Search(q, collector);
+                    searcher.Similarity = new DefaultSimilarity();
+
+                    TopDocs topDocs = collector.GetTopDocs(0, collector.TotalHits);
+                    foreach (ScoreDoc scoreDoc in topDocs.ScoreDocs)
+                    {
+                        Document doc = searcher.Doc(scoreDoc.Doc);
+
+                        result = new IndexedData();
+                        result.ClientId = doc.GetField("ClientId").GetStringValue();
+                        string val = doc.GetField("ClientNameAndDayOfBirth").GetStringValue();
+                        result.ClientNameAndDayOfBirth = FullTextSearchCommon.DecodeFromIndex(val);
+                        return result;
+                    }
                 }
             }
 
