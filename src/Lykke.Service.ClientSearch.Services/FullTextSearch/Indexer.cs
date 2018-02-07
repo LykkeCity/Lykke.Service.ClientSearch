@@ -16,7 +16,6 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
     public partial class Indexer
     {
-        //public Lucene.Net.Store.Directory IndexDirectory = FSDirectory.Open(new DirectoryInfo("/Projects.Lykke/index.dir"));
         public Lucene.Net.Store.Directory IndexDirectory { get; } = new RAMDirectory();
 
         private FieldType storeFieldType;
@@ -42,9 +41,9 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
         public void Initialize()
         {
-            Task task = Task.Factory.StartNew(async () =>
+            Task.Factory.StartNew(async () =>
             {
-                await LoadAllPersonalDataForIndexing();
+                await LoadAllPersonalDataForIndexingAsync();
             });
         }
 
@@ -89,8 +88,6 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                     {
                         foreach (IPersonalData pd in docsToIndex)
                         {
-                            bool somethingToIndex = false;
-
                             var doc = new Document();
                             doc.Add(new Field("ClientId", pd.Id, storeFieldType));
 
@@ -98,13 +95,9 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                             if (nameAndDoB != null)
                             {
                                 doc.Add(new Field("ClientNameAndDayOfBirth", nameAndDoB, phraseSearchFieldType));
-                                somethingToIndex = true;
                             }
 
-                            if (somethingToIndex)
-                            {
-                                writer.UpdateDocument(new Term("ClientId", pd.Id), doc, wAnalyzer);
-                            }
+                            writer.UpdateDocument(new Term("ClientId", pd.Id), doc, wAnalyzer);
                         }
                     }
 
@@ -148,17 +141,17 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             return utf8FullNameAndDoB;
         }
 
-        public async Task IndexSingleDocument(string clientId, IPersonalData docToIndex)
+        public async Task IndexSingleDocumentAsync(string clientId, IPersonalData docToIndex)
         {
             if (docToIndex == null)
             {
                 CreateIndex(null, new string[] { clientId });
-                await _log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocument), $"client {clientId} removed from index");
+                await _log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocumentAsync), $"client {clientId} removed from index");
             }
             else
             {
                 CreateIndex(new IPersonalData[] { docToIndex }, null);
-                await _log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocument), $"client {clientId} reindexed");
+                await _log.WriteInfoAsync(nameof(Indexer), nameof(IndexSingleDocumentAsync), $"client {clientId} reindexed");
             }
         }
 

@@ -13,33 +13,33 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
     {
         public bool IndexCreated { get; set; } = false;
 
-        public async Task LoadAllPersonalDataForIndexing()
+        public async Task LoadAllPersonalDataForIndexingAsync()
         {
             try
             {
-                List<IPersonalData> allPersonalData = await LoadPersonalData();
-                await IndexPersonalData(allPersonalData);
+                IEnumerable<IPersonalData> allPersonalData = await LoadPersonalDataAsync();
+                await IndexPersonalDataAsync(allPersonalData);
                 IndexCreated = true;
 
                 _triggerManager.StartTriggers();
-                await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexing), "Azure queue triggers started");
+                await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexingAsync), "Azure queue triggers started");
             }
             catch (Exception ex)
             {
-                await _log.WriteErrorAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexing), ex);
+                await _log.WriteErrorAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexingAsync), ex);
             }
         }
 
-        private async Task IndexPersonalData(List<IPersonalData> allPersonalData)
+        private async Task IndexPersonalDataAsync(IEnumerable<IPersonalData> allPersonalData)
         {
-            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexing), "Index creation started");
+            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexingAsync), "Index creation started");
             CreateIndex(allPersonalData, null);
-            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexing), "Index creation completed");
+            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexingAsync), "Index creation completed");
         }
 
-        private async Task<List<IPersonalData>> LoadPersonalData()
+        private async Task<IEnumerable<IPersonalData>> LoadPersonalDataAsync()
         {
-            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexing), "Personal data loading started");
+            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexingAsync), "Personal data loading started");
             List<IPersonalData> allPersonalData = new List<IPersonalData>();
 
             string nextPage = null;
@@ -57,7 +57,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                 pim.NavigateToPageIndex = pageNum;
                 pim.NextPage = nextPage;
 
-                var res = _personalDataService.GetPagedAsync(pim).GetAwaiter().GetResult();
+                var res = await _personalDataService.GetPagedAsync(pim);
                 nextPage = res.PagingInfo.NextPage;
 
                 pageNum++;
@@ -72,7 +72,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                 }
             }
 
-            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexing), "Personal data loading completed");
+            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadAllPersonalDataForIndexingAsync), "Personal data loading completed");
 
             return allPersonalData;
         }

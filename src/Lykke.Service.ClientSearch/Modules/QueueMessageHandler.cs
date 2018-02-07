@@ -30,14 +30,14 @@ namespace Lykke.Service.ClientSearch.Modules
         }
 
         [QueueTrigger("client-search-reindex-documents", 1000)]
-        public async Task ProcessInMessage(ReindexRequest req)
+        public async Task ProcessInMessageAsync(ReindexRequest req)
         {
             try
             {
                 IPersonalData docToIndex = await _personalDataService.GetAsync(req.ClientId);
                 if (docToIndex != null)
                 {
-                    await _indexer.IndexSingleDocument(req.ClientId, docToIndex);
+                    await _indexer.IndexSingleDocumentAsync(req.ClientId, docToIndex);
                 }
             }
             catch (Exception ex)

@@ -10,18 +10,24 @@ using Lykke.Service.ClientSearch.Client.Model;
 
 namespace Lykke.Service.ClientSearch.Client
 {
+    /// <summary>
+    /// Service for client search
+    /// </summary>
     public class ClientFulltextSearchService : IClientFulltextSearchService
     {
         private readonly string _serviceUrl;
         private readonly ILog _log;
 
-        public ClientFulltextSearchService(string serviceUrl, ILog log)
+        internal ClientFulltextSearchService(string serviceUrl, ILog log)
         {
             _serviceUrl = serviceUrl;
             _log = log;
         }
 
-        public async Task<IEnumerable<string>> FindExistingClients(ExistingClientSearchRequest req)
+        /// <summary>
+        /// Searches for clients by name and date of birth
+        /// </summary>
+        public async Task<IEnumerable<string>> FindExistingClientsAsync(ExistingClientSearchRequest req)
         {
             return await PostDataAsync<IEnumerable<string>>(req, "searchForExistingClient");
         }

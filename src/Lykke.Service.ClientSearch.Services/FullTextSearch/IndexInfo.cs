@@ -14,7 +14,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
     public class IndexInfo
     {
-        private const int _maxHitCount = 1000000;
+        private const int _maxHitCount = 1;
 
         private readonly Indexer _indexer;
         public IndexInfo(Indexer indexer)
@@ -41,8 +41,8 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                     searcher.Similarity = new DefaultSimilarity();
 
                     TopDocs topDocs = collector.GetTopDocs(0, collector.TotalHits);
-                    foreach (ScoreDoc scoreDoc in topDocs.ScoreDocs)
-                    {
+                    if (topDocs.ScoreDocs.Length > 0) {
+                        ScoreDoc scoreDoc = topDocs.ScoreDocs[0];
                         Document doc = searcher.Doc(scoreDoc.Doc);
 
                         result = new IndexedData();

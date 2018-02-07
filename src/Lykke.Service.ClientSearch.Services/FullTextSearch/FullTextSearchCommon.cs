@@ -6,7 +6,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 {
     public static class FullTextSearchCommon
     {
-        public static readonly char[] ReservedChars = new char[] { '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/', ',', '.', ';' };
+        private static readonly char[] ReservedChars = new char[] { '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/', ',', '.', ';' };
         public const string DateTimeFormat = "yyyyMMdd";
         public const string JUMIO_NA = "N/A";
 
