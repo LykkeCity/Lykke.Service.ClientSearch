@@ -4,8 +4,14 @@ using System.Text;
 
 namespace Lykke.Service.ClientSearch.Client
 {
-    internal class ClientSearchServiceClientSettings
+    /// <summary>
+    /// Service settings class
+    /// </summary>
+    public class ClientSearchServiceClientSettings
     {
+        /// <summary>
+        /// Service Url prperty
+        /// </summary>
         public string ServiceUrl { get; set; }
     }
 }

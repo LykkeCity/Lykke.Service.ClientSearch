@@ -24,6 +24,16 @@
             Searches for clients by name and date of birth
             </summary>
         </member>
+        <member name="T:Lykke.Service.ClientSearch.Client.ClientSearchServiceClientSettings">
+            <summary>
+            Service settings class
+            </summary>
+        </member>
+        <member name="P:Lykke.Service.ClientSearch.Client.ClientSearchServiceClientSettings.ServiceUrl">
+            <summary>
+            Service Url prperty
+            </summary>
+        </member>
         <member name="T:Lykke.Service.ClientSearch.Client.IClientFulltextSearchService">
             <summary>
             Public interface of service for client search
