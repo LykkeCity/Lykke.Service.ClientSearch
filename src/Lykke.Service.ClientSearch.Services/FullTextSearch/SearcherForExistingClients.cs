@@ -7,6 +7,7 @@ using Lucene.Net.Search.Similarities;
 using Lucene.Net.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -23,11 +24,11 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             _indexer = indexer;
         }
 
-        public IList<string> Search(string name, DateTime dateOfBirth)
+        public IEnumerable<string> Search(string name, DateTime dateOfBirth)
         {
             if (String.IsNullOrWhiteSpace(name) || dateOfBirth == DateTime.MinValue)
             {
-                return null;
+                return Enumerable.Empty<string>();
             }
 
             Lucene.Net.Store.Directory dir = _indexer.IndexDirectory;

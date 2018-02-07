@@ -16,6 +16,7 @@ using Lykke.SettingsReader;
 using Lykke.SlackNotification.AzureQueue;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -93,7 +94,7 @@ namespace Lykke.Service.ClientSearch
                 app.UseSwaggerUI(x =>
                 {
                     x.RoutePrefix = "swagger/ui";
-                    x.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                    x.SwaggerEndpoint($"/swagger/v1/swagger.json", "v1");
                 });
                 app.UseStaticFiles();
 

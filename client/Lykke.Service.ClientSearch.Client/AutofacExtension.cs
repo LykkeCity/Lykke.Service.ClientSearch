@@ -4,8 +4,14 @@ using Common.Log;
 
 namespace Lykke.Service.ClientSearch.Client
 {
+    /// <summary>
+    /// Service binding helper class
+    /// </summary>
     public static class AutofacExtension
     {
+        /// <summary>
+        /// Service binding helper method
+        /// </summary>
         public static void RegisterClientSearchClient(this ContainerBuilder builder, string serviceUrl, ILog log)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));

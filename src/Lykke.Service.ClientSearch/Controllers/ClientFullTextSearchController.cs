@@ -52,7 +52,7 @@ namespace Lykke.Service.ClientSearch.Controllers
                 return StatusCode(_serviceNotReadyCode, _serviceNotReadyMsg);
             }
 
-            IList<string> result = _searcherForExistingClients.Search(req.Name, req.DateOfBirth);
+            IEnumerable<string> result = _searcherForExistingClients.Search(req.Name, req.DateOfBirth);
             if (result == null)
             {
                 return BadRequest(errMsg);
