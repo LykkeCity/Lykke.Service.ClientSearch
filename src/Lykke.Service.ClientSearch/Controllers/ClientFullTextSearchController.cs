@@ -14,9 +14,6 @@ namespace Lykke.Service.ClientSearch.Controllers
     [Route("api/[controller]")]
     public class ClientFullTextSearchController : Controller
     {
-        private const int _serviceNotReadyCode = 503;
-        private const string _serviceNotReadyMsg = "Search index is not ready yet";
-
         private readonly Indexer _indexer;
         private readonly SearcherForExistingClients _searcherForExistingClients;
         private readonly IndexInfo _indexInfo;
@@ -47,9 +44,9 @@ namespace Lykke.Service.ClientSearch.Controllers
             {
                 return BadRequest(errMsg);
             }
-            if (!_indexer.IndexCreated)
+            if (!_indexer.IsIndexReady)
             {
-                return StatusCode(_serviceNotReadyCode, _serviceNotReadyMsg);
+                return StatusCode(ControllersCommon.ServiceNotReadyCode, ControllersCommon.ServiceNotReadyMsg);
             }
 
             IEnumerable<string> result = _searcherForExistingClients.Search(req.Name, req.DateOfBirth);
@@ -72,9 +69,9 @@ namespace Lykke.Service.ClientSearch.Controllers
             {
                 return BadRequest(errMsg);
             }
-            if (!_indexer.IndexCreated)
+            if (!_indexer.IsIndexReady)
             {
-                return StatusCode(_serviceNotReadyCode, _serviceNotReadyMsg);
+                return StatusCode(ControllersCommon.ServiceNotReadyCode, ControllersCommon.ServiceNotReadyMsg);
             }
 
             IndexedData result = _indexInfo.GetIndexedData(clientId);

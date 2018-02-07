@@ -8,6 +8,7 @@ using Lucene.Net.Util;
 using Lykke.Service.ClientSearch.Core.Services;
 using Lykke.Service.PersonalData.Contract;
 using Lykke.Service.PersonalData.Contract.Models;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -37,14 +38,6 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             _log = log;
 
             InitializeIndexFieldTypes();
-        }
-
-        public void Initialize()
-        {
-            Task.Factory.StartNew(async () =>
-            {
-                await LoadAllPersonalDataForIndexingAsync();
-            });
         }
 
         private void InitializeIndexFieldTypes()
