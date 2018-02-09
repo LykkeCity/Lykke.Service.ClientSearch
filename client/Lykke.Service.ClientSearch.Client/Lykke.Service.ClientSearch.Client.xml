@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Lykke.Service.ClientSearch.Client</name>
+    </assembly>
+    <members>
+        <member name="T:Lykke.Service.ClientSearch.Client.AutofacExtension">
+            <summary>
+            Service binding helper class
+            </summary>
+        </member>
+        <member name="M:Lykke.Service.ClientSearch.Client.AutofacExtension.RegisterClientSearchClient(Autofac.ContainerBuilder,System.String,Common.Log.ILog)">
+            <summary>
+            Service binding helper method
+            </summary>
+        </member>
+        <member name="T:Lykke.Service.ClientSearch.Client.ClientFulltextSearchService">
+            <summary>
+            Service for client search
+            </summary>
+        </member>
+        <member name="M:Lykke.Service.ClientSearch.Client.ClientFulltextSearchService.FindExistingClientsAsync(Lykke.Service.ClientSearch.Client.Model.ExistingClientSearchRequest)">
+            <summary>
+            Searches for clients by name and date of birth
+            </summary>
+        </member>
+        <member name="T:Lykke.Service.ClientSearch.Client.ClientSearchServiceClientSettings">
+            <summary>
+            Service settings class
+            </summary>
+        </member>
+        <member name="P:Lykke.Service.ClientSearch.Client.ClientSearchServiceClientSettings.ServiceUrl">
+            <summary>
+            Service Url prperty
+            </summary>
+        </member>
+        <member name="T:Lykke.Service.ClientSearch.Client.IClientFulltextSearchService">
+            <summary>
+            Public interface of service for client search
+            </summary>
+        </member>
+        <member name="M:Lykke.Service.ClientSearch.Client.IClientFulltextSearchService.FindExistingClientsAsync(Lykke.Service.ClientSearch.Client.Model.ExistingClientSearchRequest)">
+            <summary>
+            Searches for existng clients by fisrt name and last name and date of birth
+            </summary>
+            <returns>Collection of client ids</returns>
+        </member>
+        <member name="T:Lykke.Service.ClientSearch.Client.Model.ExistingClientSearchRequest">
+            <summary>
+            Search request class bu name and date of birth
+            </summary>
+        </member>
+        <member name="P:Lykke.Service.ClientSearch.Client.Model.ExistingClientSearchRequest.Name">
+            <summary>
+            Search request name property
+            </summary>
+        </member>
+        <member name="P:Lykke.Service.ClientSearch.Client.Model.ExistingClientSearchRequest.DateOfBirth">
+            <summary>
+            Search request date of birth property
+            </summary>
+        </member>
+    </members>
+</doc>
