@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Autofac;
+using System.Threading.Tasks;
 
 namespace Lykke.Service.ClientSearch.Core.Services
 {

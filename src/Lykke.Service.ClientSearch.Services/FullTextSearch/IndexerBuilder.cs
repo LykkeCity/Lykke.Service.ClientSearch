@@ -56,7 +56,6 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
             IsIndexReady = true;
 
-            _triggerManager.StartTriggers();
             await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadDataAndCreateIndexAsync), "Azure queue triggers started");
         }
 

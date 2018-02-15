@@ -21,19 +21,16 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
 
         private FieldType storeFieldType;
         private FieldType searchFieldType;
-        private FieldType phraseSearchFieldType;
+        private FieldType exactTextSearchFieldType;
 
-        private readonly ITriggerManager _triggerManager;
         private readonly IPersonalDataService _personalDataService;
         private readonly ILog _log;
 
         public Indexer(
-            ITriggerManager triggerManager,
             IPersonalDataService personalDataService,
             ILog log
             )
         {
-            _triggerManager = triggerManager;
             _personalDataService = personalDataService;
             _log = log;
 
@@ -58,13 +55,13 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             searchFieldType.OmitNorms = false;
             searchFieldType.Freeze();
 
-            phraseSearchFieldType = new FieldType();
-            phraseSearchFieldType.IndexOptions = IndexOptions.DOCS_AND_FREQS_AND_POSITIONS;
-            phraseSearchFieldType.IsIndexed = true;
-            phraseSearchFieldType.IsStored = true;
-            phraseSearchFieldType.IsTokenized = true;
-            phraseSearchFieldType.OmitNorms = true;
-            phraseSearchFieldType.Freeze();
+            exactTextSearchFieldType = new FieldType();
+            exactTextSearchFieldType.IndexOptions = IndexOptions.DOCS_ONLY;
+            exactTextSearchFieldType.IsIndexed = true;
+            exactTextSearchFieldType.IsStored = true;
+            exactTextSearchFieldType.IsTokenized = false;
+            exactTextSearchFieldType.OmitNorms = true;
+            exactTextSearchFieldType.Freeze();
         }
 
         private void CreateIndex(IEnumerable<IPersonalData> docsToIndex, IEnumerable<string> docsToDelete)
@@ -87,7 +84,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                             string nameAndDoB = CreateNameAndDOBToIndex(pd);
                             if (nameAndDoB != null)
                             {
-                                doc.Add(new Field("ClientNameAndDayOfBirth", nameAndDoB, phraseSearchFieldType));
+                                doc.Add(new Field("ClientNameAndDayOfBirth", nameAndDoB, exactTextSearchFieldType));
                             }
 
                             writer.UpdateDocument(new Term("ClientId", pd.Id), doc, wAnalyzer);
