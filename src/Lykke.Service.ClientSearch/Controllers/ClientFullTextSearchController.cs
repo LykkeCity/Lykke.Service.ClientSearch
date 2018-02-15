@@ -7,6 +7,7 @@ using Lykke.Service.ClientSearch.Core.FullTextSearch;
 using Lykke.Service.ClientSearch.Services.FullTextSearch;
 using JetBrains.Annotations;
 using System.ComponentModel.DataAnnotations;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Lykke.Service.ClientSearch.Controllers
 {
