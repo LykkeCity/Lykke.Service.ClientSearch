@@ -54,17 +54,16 @@ namespace Lykke.Service.ClientSearch.Modules
                 .As<IShutdownManager>();
 
 
-
             builder.RegisterType<PersonalDataService>()
                 .As<IPersonalDataService>()
-                .WithParameters(new[] { TypedParameter.From(_pdClientSettings.CurrentValue), TypedParameter.From(_log) })
                 .SingleInstance();
-
 
             builder.RegisterType<Indexer>().SingleInstance();
             builder.RegisterType<IndexerManager>().SingleInstance();
             builder.RegisterType<SearcherForExistingClients>();
             builder.RegisterType<IndexInfo>();
+
+            builder.RegisterInstance(_pdClientSettings.CurrentValue);
 
 
             builder.AddTriggers(pool =>
