@@ -9,6 +9,8 @@ namespace Lykke.Service.ClientSearch.Services
 {
     public class IndexerManager
     {
+        private readonly int _taskCancelTime = 5000;
+
         private TriggerHost _triggerHost;
         private Task _triggerHostTask;
 
@@ -24,9 +26,9 @@ namespace Lykke.Service.ClientSearch.Services
             _indexer = indexer;
         }
 
-        public async Task StartAsync()
+        public void Start()
         {
-            await Task.Factory.StartNew(
+            Task.Run(
                 async () =>
                 {
                     await _indexer.Initialize();
@@ -37,12 +39,12 @@ namespace Lykke.Service.ClientSearch.Services
             );
         }
 
-        public async Task StopAsync()
+        public void Stop()
         {
             _triggerHost?.Cancel();
             if (_triggerHostTask != null)
             {
-                await _triggerHostTask;
+                _triggerHostTask.Wait(_taskCancelTime);
             }
         }
 
