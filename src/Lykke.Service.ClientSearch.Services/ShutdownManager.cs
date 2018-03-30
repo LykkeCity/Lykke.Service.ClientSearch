@@ -27,7 +27,7 @@ namespace Lykke.Service.ClientSearch.Services
         {
             // TODO: Implement your shutdown logic here. Good idea is to log every step
 
-            await _indexerManager.StopAsync();
+            _indexerManager.Stop();
             await Task.CompletedTask;
         }
     }

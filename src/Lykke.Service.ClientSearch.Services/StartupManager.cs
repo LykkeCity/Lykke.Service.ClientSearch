@@ -31,7 +31,7 @@ namespace Lykke.Service.ClientSearch.Services
         {
             // TODO: Implement your startup logic here. Good idea is to log every step
 
-            await _indexerManager.StartAsync();
+            _indexerManager.Start();
             await Task.CompletedTask;
         }
     }
