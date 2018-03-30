@@ -11,10 +11,15 @@ namespace Lykke.Service.ClientSearch.Services
     
     public class ShutdownManager : IShutdownManager
     {
+        private readonly IndexerManager _indexerManager;
         private readonly ILog _log;
 
-        public ShutdownManager(ILog log)
+        public ShutdownManager(
+            IndexerManager indexerManager,
+            ILog log
+            )
         {
+            _indexerManager = indexerManager;
             _log = log;
         }
 
@@ -22,6 +27,7 @@ namespace Lykke.Service.ClientSearch.Services
         {
             // TODO: Implement your shutdown logic here. Good idea is to log every step
 
+            await _indexerManager.StopAsync();
             await Task.CompletedTask;
         }
     }

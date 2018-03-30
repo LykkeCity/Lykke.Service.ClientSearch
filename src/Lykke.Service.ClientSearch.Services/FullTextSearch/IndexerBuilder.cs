@@ -51,8 +51,8 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             IEnumerable<IPersonalData> allPersonalData = await LoadPersonalDataAsync();
 
             await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadDataAndCreateIndexAsync), "Index creation started");
-            CreateIndex(allPersonalData, null);
-            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadDataAndCreateIndexAsync), "Index creation completed");
+            int docNum  = CreateIndex(allPersonalData, null);
+            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadDataAndCreateIndexAsync), $"Index creation completed: total {docNum} documents");
 
             IsIndexReady = true;
 
@@ -94,7 +94,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                 }
             }
 
-            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadPersonalDataAsync), "Personal data loading completed");
+            await _log.WriteInfoAsync(nameof(Indexer), nameof(LoadPersonalDataAsync), $"Personal data loading completed: {allPersonalData.Count} records");
 
             return allPersonalData;
         }

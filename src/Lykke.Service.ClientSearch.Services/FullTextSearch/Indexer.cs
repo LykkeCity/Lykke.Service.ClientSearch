@@ -64,7 +64,7 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
             exactTextSearchFieldType.Freeze();
         }
 
-        private void CreateIndex(IEnumerable<IPersonalData> docsToIndex, IEnumerable<string> docsToDelete)
+        private int CreateIndex(IEnumerable<IPersonalData> docsToIndex, IEnumerable<string> docsToDelete)
         {
             using (var wAnalyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48))
             {
@@ -100,6 +100,8 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                     }
 
                     writer.Commit();
+
+                    return writer.NumDocs;
                 }
             }
         }

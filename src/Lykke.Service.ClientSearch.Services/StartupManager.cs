@@ -1,5 +1,7 @@
 ﻿using Common.Log;
+using Lykke.JobTriggers.Triggers;
 using Lykke.Service.ClientSearch.Core.Services;
+using Lykke.Service.ClientSearch.Services.FullTextSearch;
 using System.Threading.Tasks;
 
 namespace Lykke.Service.ClientSearch.Services
@@ -13,10 +15,15 @@ namespace Lykke.Service.ClientSearch.Services
 
     public class StartupManager : IStartupManager
     {
+        private readonly IndexerManager _indexerManager;
         private readonly ILog _log;
 
-        public StartupManager(ILog log)
+        public StartupManager(
+            IndexerManager indexerManager,
+            ILog log
+            )
         {
+            _indexerManager = indexerManager;
             _log = log;
         }
 
@@ -24,6 +31,7 @@ namespace Lykke.Service.ClientSearch.Services
         {
             // TODO: Implement your startup logic here. Good idea is to log every step
 
+            await _indexerManager.StartAsync();
             await Task.CompletedTask;
         }
     }
