@@ -1,10 +1,8 @@
-﻿using System;
-using Lykke.Service.ClientSearch.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System.ComponentModel;
+﻿using Lykke.Service.ClientSearch.Models;
 using Lykke.Service.ClientSearch.Services.FullTextSearch;
+using Lykke.Service.LykkeService;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 
 namespace Lykke.Service.ClientSearch.Controllers
