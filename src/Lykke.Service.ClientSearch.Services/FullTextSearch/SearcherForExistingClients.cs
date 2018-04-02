@@ -52,28 +52,24 @@ namespace Lykke.Service.ClientSearch.Services.FullTextSearch
                 name = FullTextSearchCommon.EncodeForIndex(name.ToLower());
 
                 string phrase = $"{name} {dateOfBirth.ToString(FullTextSearchCommon.DateTimeFormat)}";
-                string queryStr = $"ClientNameAndDayOfBirth: \"{phrase}\"";
+                string queryStr = $"{phrase}";
 
-                using (var rAnalyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48))
+                TermQuery q = new TermQuery(new Term("ClientNameAndDayOfBirth", queryStr));
+
+                var collector = TopScoreDocCollector.Create(_maxHitCount, true);
+                searcher.Search(q, collector);
+                searcher.Similarity = new DefaultSimilarity();
+
+                List<string> matchingResults = new List<string>();
+
+                TopDocs topDocs = collector.GetTopDocs(0, collector.TotalHits);
+                foreach (ScoreDoc scoreDoc in topDocs.ScoreDocs)
                 {
-                    QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "ClientNameAndDayOfBirth", rAnalyzer);
-                    Query q = parser.Parse(queryStr);
-
-                    var collector = TopScoreDocCollector.Create(_maxHitCount, true);
-                    searcher.Search(q, collector);
-                    searcher.Similarity = new DefaultSimilarity();
-
-                    List<string> matchingResults = new List<string>();
-
-                    TopDocs topDocs = collector.GetTopDocs(0, collector.TotalHits);
-                    foreach (ScoreDoc scoreDoc in topDocs.ScoreDocs)
-                    {
-                        Document doc = searcher.Doc(scoreDoc.Doc);
-                        matchingResults.Add(doc.GetField("ClientId").GetStringValue());
-                    }
-
-                    return matchingResults;
+                    Document doc = searcher.Doc(scoreDoc.Doc);
+                    matchingResults.Add(doc.GetField("ClientId").GetStringValue());
                 }
+
+                return matchingResults;
 
             }
         }

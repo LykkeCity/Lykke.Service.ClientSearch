@@ -47,24 +47,28 @@ namespace Lykke.Service.ClientSearch.Modules
                 .SingleInstance();
 
             builder.RegisterType<StartupManager>()
-                .As<IStartupManager>();
+                .As<IStartupManager>()
+                .SingleInstance();
 
             builder.RegisterType<ShutdownManager>()
                 .As<IShutdownManager>();
 
 
-
-            builder.RegisterInstance<ITriggerManager>(new TriggerManager(new AutofacServiceProvider(_applicationContainer)));
-            builder.RegisterInstance<IPersonalDataService>(new PersonalDataService(_pdClientSettings.CurrentValue, _log));
+            builder.RegisterType<PersonalDataService>()
+                .As<IPersonalDataService>()
+                .SingleInstance();
 
             builder.RegisterType<Indexer>().SingleInstance();
+            builder.RegisterType<IndexerManager>().SingleInstance();
             builder.RegisterType<SearcherForExistingClients>();
             builder.RegisterType<IndexInfo>();
+
+            builder.RegisterInstance(_pdClientSettings.CurrentValue);
 
 
             builder.AddTriggers(pool =>
             {
-                pool.AddDefaultConnection(_settings.CurrentValue.ClientPersonalInfoConnString);
+                pool.AddDefaultConnection(_settings.Nested(_ => _.ClientPersonalInfoConnString));
             });
 
 

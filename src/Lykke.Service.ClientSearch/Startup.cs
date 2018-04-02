@@ -12,6 +12,8 @@ using Lykke.Logs;
 using Lykke.Service.ClientSearch.Core;
 using Lykke.Service.ClientSearch.Core.Services;
 using Lykke.Service.ClientSearch.Modules;
+using Lykke.Service.ClientSearch.Services.FullTextSearch;
+using Lykke.Service.LykkeService;
 using Lykke.SettingsReader;
 using Lykke.SlackNotification.AzureQueue;
 using Microsoft.AspNetCore.Builder;
@@ -28,7 +30,6 @@ namespace Lykke.Service.ClientSearch
         private IContainer ApplicationContainer { get; set; }
         private IConfigurationRoot Configuration { get; }
         private ILog Log { get; set; }
-
 
         public Startup(IHostingEnvironment env)
         {
@@ -116,8 +117,8 @@ namespace Lykke.Service.ClientSearch
                 // NOTE: Service not yet recieve and process requests here
 
                 await ApplicationContainer.Resolve<IStartupManager>().StartAsync();
-
                 await Log.WriteMonitorAsync("", $"Env: {Program.EnvInfo}", "Started");
+
             }
             catch (Exception ex)
             {
